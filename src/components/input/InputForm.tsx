@@ -9,7 +9,7 @@ interface Props {
   placeholder: string;
   onChangeText?: any;
   value: string;
-  errors?: string;
+  errorMessage?: string;
   secureTextEntry: boolean;
   onFocus?: any;
   colorText?: any;
@@ -29,7 +29,7 @@ export const InputForm = ({
   value,
   secureTextEntry,
   onFocus,
-  errors,
+  errorMessage,
   name,
   colorText,
   colorInput,
@@ -62,7 +62,9 @@ export const InputForm = ({
         readOnly={readonly}
       />
       <View>
-        <Text style={[appStyles.textDanger, styles.textCenter]}>{errors}</Text>
+        <Text style={[appStyles.textDanger, styles.textCenter]}>
+          {errorMessage}
+        </Text>
       </View>
     </View>
   );

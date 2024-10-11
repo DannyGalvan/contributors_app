@@ -1,17 +1,17 @@
 import { InternalServerError } from '../../types/Errors';
 import { dataSource } from '../dataSource';
-import { Configuration } from '../models/SessionStorage';
+import { SessionStorage } from '../models/SessionStorage';
 
-export const sessionStorageRepository = dataSource.getRepository(Configuration);
+export const sessionStorageRepository =
+  dataSource.getRepository(SessionStorage);
 
 export const createSessionStorage = async <T>(key: string, value: T) => {
   try {
-    const sessionStorage = new Configuration();
+    const sessionStorage = new SessionStorage();
     sessionStorage.key = key;
     sessionStorage.value = JSON.stringify(value);
     await sessionStorageRepository.save(sessionStorage);
   } catch (error) {
-    console.log(error);
     throw new InternalServerError(`Error al guardar el item, ${error}`);
   }
 };
@@ -25,9 +25,10 @@ export const getSessionStorage = async <T>(key: string): Promise<T | null> => {
     if (sessionStorage) {
       return JSON.parse(sessionStorage.value);
     }
+
     return null;
   } catch (error) {
-    return null;
+    throw new InternalServerError(`Error al obtener el item, ${error}`);
   }
 };
 

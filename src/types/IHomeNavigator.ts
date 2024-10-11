@@ -1,10 +1,7 @@
-import type {StackScreenProps} from '@react-navigation/stack';
+import type { StackScreenProps } from '@react-navigation/stack';
 
 export type HomeStackParamList = {
-  DashBoard: undefined;
+  Apps: undefined;
 };
 
-export type DashboardScreenProps = StackScreenProps<
-  HomeStackParamList,
-  'DashBoard'
->;
+export type DashboardScreenProps = StackScreenProps<HomeStackParamList, 'Apps'>;

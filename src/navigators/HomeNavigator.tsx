@@ -9,14 +9,16 @@ export const HomeNavigator = () => {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerTitleAlign: 'center',
         headerStyle: {
-          backgroundColor: 'rgb(107,114,128)',
+          backgroundColor: 'rgb(244,244,245)',
         },
-        headerTintColor: '#fff',
+        headerTintColor: 'black',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
       }}
     >
-      <Stack.Screen name="DashBoard" component={Dashboard} />
+      <Stack.Screen name="Apps" component={Dashboard} />
     </Stack.Navigator>
   );
 };

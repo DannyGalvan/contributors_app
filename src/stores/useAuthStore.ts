@@ -44,6 +44,7 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
     const newState = { ...state, isLoggedIn: true };
     set({ authState: newState });
     createSessionStorage(StorageKey.auth, newState);
+    console.log('signIn');
   },
   initializeAuth: async () => {
     set({ isLoadingAuth: true });
@@ -56,10 +57,12 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
     }
 
     set({ isLoadingAuth: false });
+    console.log('initializeAuth');
   },
   logout: () => {
     setAuthorizationHeader('');
     removeSessionStorage(StorageKey.auth);
     set({ authState: InitialAuthState });
+    console.log('logout');
   },
 }));

@@ -21,6 +21,8 @@ export const PrincipalStack = () => {
     }
   }, [isLoggedIn, navigate]);
 
+  console.log('isLoggedIn', isLoggedIn);
+
   return (
     <Stack.Navigator
       screenOptions={{

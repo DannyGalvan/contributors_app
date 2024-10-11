@@ -1,15 +1,15 @@
 import { typeORMDriver } from 'react-native-quick-sqlite';
 import { DataSource } from 'typeorm';
-import { Configuration } from './models/SessionStorage';
+import { SessionStorage } from './models/SessionStorage';
 import { NAME_BD } from '../config/constants';
 
 export const dataSource = new DataSource({
   database: NAME_BD,
-  entities: [Configuration],
+  entities: [SessionStorage],
   location: '.',
-  logging: [],
-  synchronize: false,
-  logger: 'debug',
+  logging: ['query', 'error', 'info', 'warn', 'log', 'schema'],
+  synchronize: true,
+  logger: 'advanced-console',
   type: 'react-native',
   driver: typeORMDriver,
 });
