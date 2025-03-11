@@ -1,11 +1,12 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { appColors } from '../../styles/appColors';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { appColors } from '@styles/appColors';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 interface MenuItemProps {
   title: string;
-  icon: string;
+  icon?: string;
+  image?: number;
   onPress: () => void;
   iconColor?: string;
 }
@@ -13,6 +14,7 @@ interface MenuItemProps {
 export const MenuItem = ({
   title,
   icon,
+  image,
   onPress,
   iconColor,
 }: MenuItemProps) => {
@@ -23,8 +25,19 @@ export const MenuItem = ({
       onPress={onPress}
       accessibilityLabel={title}
     >
-      <View className="bg-white p-7 rounded-3xl absolute" style={styles.icon}>
-        <Icon name={icon} size={30} color={iconColor} />
+      <View className="bg-white p-3 rounded-3xl absolute" style={styles.icon}>
+        {icon && (
+          <Icon name={icon} size={65} color={iconColor || appColors.primary} />
+        )}
+        {image && (
+          <Image
+            source={image}
+            style={{
+              width: 65,
+              height: 65,
+            }}
+          />
+        )}
       </View>
       {title && (
         <Text className={'text-black font-bold text-md text-center mt-24'}>

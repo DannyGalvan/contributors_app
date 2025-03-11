@@ -1,28 +1,84 @@
 import React from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import { TouchableButton } from '../../components/button/TouchableButton';
-import { useAuth } from '../../hooks/useAuth';
-import { appColors } from '../../styles/appColors';
-import { InputForm } from '../../components/input/InputForm';
-import { appStyles } from '../../styles/appStyles';
-import { Logo } from '../../components/Icons/Logo';
+import { StyleSheet, Text, View } from 'react-native';
+import { TouchableButton } from '@components/button/TouchableButton';
+import { useAuth } from '@hooks/useAuth';
+import { appColors } from '@styles/appColors';
+import { InputForm } from '@components/input/InputForm';
+import { appStyles } from '@styles/appStyles';
+import { Logo } from '@components/Icons/Logo';
+import { ErrorObject, useForm } from '@hooks/useForm';
+import { LoginRequest } from '@app-types/LoginRequest';
+import { authShema } from '@validations/AuthValidations';
+import { handleOneLevelZodError } from '@utils/converted';
+import { LoginResponse } from '@app-types/LoginResponse';
+import { login } from '@services/authService';
+import { useErrorsStore } from '@stores/useErrorsStore';
+import { ResponseMessage } from '@components/pure/ResponseMessage';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { AuthParamList } from '@app-types/IAuthNavigator';
+import { ScrollView } from 'react-native-gesture-handler';
+import { Title } from '@components/pure/Title';
+
+const initialLogin: LoginRequest = {
+  dpi: '',
+  password: '',
+};
+
+const loginValidations = (form: LoginRequest) => {
+  let errors: ErrorObject = {};
+
+  const parce = authShema.safeParse(form);
+
+  if (!parce.success) errors = handleOneLevelZodError(parce.error);
+
+  return errors;
+};
 
 export const LoginScreen = () => {
   const { signIn } = useAuth();
+  const { resetError, error } = useErrorsStore();
+  const { navigate } = useNavigation<NavigationProp<AuthParamList>>();
 
-  const handleLogin = () => {
+  const handleLogin = async (form: LoginRequest) => {
+    resetError();
+
+    const response = await login(form);
+
+    if (!response.success) return response;
+
+    const authResponse: LoginResponse = response.data as LoginResponse;
+
     signIn({
-      username: 'test',
-      idUser: 1,
-      token: '123456',
+      username: authResponse.name,
+      token: authResponse.token,
+      idUser: authResponse.userId,
+      employeeCode: authResponse.employeeCode,
+      companyCode: authResponse.companyCode,
+      startYearToWork: authResponse.startYearToWork,
+      startDateToWork: authResponse.startDateToWork,
     });
+
+    return response;
   };
 
+  const {
+    form,
+    handleChange,
+    handleSubmit,
+    errors,
+    loading,
+    message,
+    success,
+  } = useForm<LoginRequest, LoginResponse>(
+    initialLogin,
+    loginValidations,
+    handleLogin,
+    true,
+  );
+
   return (
-    <View className="flex-1 justify-center items-center">
-      <Text className={'text-2xl text-black font-bold'}>
-        Bienvenid@ de Nuevo
-      </Text>
+    <ScrollView contentContainerStyle={styles.screen}>
+      <Title text="Bienvenid@ de Nuevo" />
 
       <View style={styles.containerLogo}>
         <Logo isVisible={false} style={styles.logo} />
@@ -31,31 +87,77 @@ export const LoginScreen = () => {
       <InputForm
         containerStyles={styles.input}
         name="dpi"
-        errorMessage={''}
+        errorMessage={errors?.dpi}
         colorText={appStyles.textDark}
         placeholderTextColor={appColors.gray}
         colorInput={appStyles.inputLight}
         label="DPI"
-        value={''}
-        onChangeText={() => {}}
+        value={form.dpi}
+        onChangeText={(text: string) => handleChange('dpi', text)}
         placeholder="Ingrese su DPI"
+        icon="card"
+        iconColor={appColors.sky}
         secureTextEntry={false}
+      />
+
+      <InputForm
+        containerStyles={styles.input}
+        name="password"
+        errorMessage={errors?.password}
+        colorText={appStyles.textDark}
+        placeholderTextColor={appColors.gray}
+        colorInput={appStyles.inputLight}
+        label="Contraseña"
+        value={form.password}
+        onChangeText={(text: string) => handleChange('password', text)}
+        placeholder="Ingrese su contraseña"
+        secureTextEntry={true}
+        icon="eye"
+        iconColor={appColors.sky}
       />
 
       <TouchableButton
         styles={styles.button}
         textClassName="text-lg text-white font-bold"
-        onPress={handleLogin}
+        onPress={handleSubmit}
         title="Iniciar sesión"
         icon="log-in"
       />
 
-      <ActivityIndicator className="mt-5" size="large" color={appColors.info} />
-    </View>
+      <Text
+        className="text-center text-sky-500 text-lg underline my-2"
+        onPress={() => navigate('Register')}
+      >
+        No tienes usuario?
+      </Text>
+
+      <Text
+        className="text-center text-sky-500 text-lg underline my-2"
+        onPress={() => navigate('RecoveryPassword')}
+      >
+        Olvido su Contraseña?
+      </Text>
+
+      <ResponseMessage message={message} success={success} loading={loading} />
+
+      <ResponseMessage
+        message={
+          error &&
+          `Error: ${error?.message}, code: ${error?.statusCode}, name: ${error?.name}`
+        }
+        success={false}
+        loading={false}
+      />
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   button: {
     backgroundColor: appColors.warning,
     paddingHorizontal: 20,

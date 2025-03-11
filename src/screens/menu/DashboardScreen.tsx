@@ -1,11 +1,12 @@
 import React from 'react';
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { appColors } from '../../styles/appColors';
+import { appColors } from '@styles/appColors';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { PrincipalStackParamList } from '../../types/IPrincipalNavigator';
-import { useAuth } from '../../hooks/useAuth';
-import { MenuItem } from '../../components/card/MenuItem';
+import type { PrincipalStackParamList } from '@app-types/IPrincipalNavigator';
+import { useAuth } from '@hooks/useAuth';
+import { MenuItem } from '@components/card/MenuItem';
+import { icons } from '@config/images';
 
 export const Dashboard = () => {
   const { navigate } = useNavigation<NavigationProp<PrincipalStackParamList>>();
@@ -15,26 +16,26 @@ export const Dashboard = () => {
     <SafeAreaView className="flex-1 bg-zinc-100 mt-2">
       <View className="flex flex-row flex-wrap justify-center items-center">
         <MenuItem
-          title="Entrada / Salida salientes"
-          icon="qr-code"
+          title="Entrada / Salida"
+          image={icons.entradaSalida}
           iconColor={appColors.black}
           onPress={() => navigate('InOut')}
         />
         <MenuItem
           title="Vacaciones"
-          icon="calendar"
+          image={icons.vacaciones}
           iconColor={appColors.info}
-          onPress={() => console.log('hola')}
+          onPress={() => navigate('Vacations')}
         />
         <MenuItem
           title="Horas Extras"
-          icon="time"
+          image={icons.horasExtras}
           iconColor={appColors.secondary}
-          onPress={() => console.log('hola')}
+          onPress={() => navigate('Overtime')}
         />
         <MenuItem
           title="Salir"
-          icon="exit"
+          image={icons.salir}
           iconColor={appColors.danger}
           onPress={logout}
         />

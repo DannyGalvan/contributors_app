@@ -1,0 +1,38 @@
+{
+    "java.compile.nullAnalysis.mode": "automatic",
+    "sqltools.connections": [
+        {
+            "pgOptions": {
+                "ssl": {
+                    "rejectUnauthorized": true
+                }
+            },
+            "previewLimit": 50,
+            "server": "ep-late-art-a4riv8ip.us-east-1.aws.neon.tech",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "Optimizacion Rutas",
+            "group": "UMG",
+            "database": "optimizacion_rutas",
+            "username": "students_owner",
+            "password": "NWPEkp0IVQd7"
+        },
+        {
+            "connectionTimeout": 15,
+            "mssqlOptions": {
+                "appName": "SQLTools",
+                "useUTC": true,
+                "encrypt": true,
+                "trustServerCertificate": true
+            },
+            "previewLimit": 50,
+            "server": "18.190.149.220",
+            "port": 1433,
+            "driver": "MSSQL",
+            "name": "It Global",
+            "group": "It Global",
+            "username": "comprasweb",
+            "password": "SzQ#Ts84oyMA"
+        }
+    ]
+}

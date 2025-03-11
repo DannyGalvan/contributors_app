@@ -1,6 +1,6 @@
-import { InternalServerError } from '../../types/Errors';
-import { dataSource } from '../dataSource';
-import { SessionStorage } from '../models/SessionStorage';
+import { InternalServerError } from '@app-types/Errors';
+import { dataSource } from '@database/dataSource';
+import { SessionStorage } from '@database/models/SessionStorage';
 
 export const sessionStorageRepository =
   dataSource.getRepository(SessionStorage);

@@ -1,7 +1,7 @@
 import { createStackNavigator } from '@react-navigation/stack';
 import React from 'react';
-import { Dashboard } from '../screens/menu/DashboardScreen';
-import { HomeStackParamList } from '../types/IHomeNavigator';
+import { Dashboard } from '@screens/menu/DashboardScreen';
+import { HomeStackParamList } from '@app-types/IHomeNavigator';
 
 const Stack = createStackNavigator<HomeStackParamList>();
 

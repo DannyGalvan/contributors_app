@@ -1,7 +1,9 @@
 import React from 'react';
 import { Text, StyleSheet, TextInput, View, KeyboardType } from 'react-native';
-import { appStyles } from '../../styles/appStyles';
-import { appColors } from '../../styles/appColors';
+import { appStyles } from '@styles/appStyles';
+import { appColors } from '@styles/appColors';
+import { TouchableButton } from '@components/button/TouchableButton';
+import { useToggle } from '@hooks/useToggle';
 
 interface Props {
   label: string;
@@ -20,6 +22,8 @@ interface Props {
   keyboardType?: KeyboardType;
   style?: any;
   readonly?: boolean;
+  icon?: string;
+  iconColor?: string;
 }
 
 export const InputForm = ({
@@ -39,28 +43,43 @@ export const InputForm = ({
   keyboardType,
   style,
   readonly,
+  icon,
+  iconColor,
 }: Props) => {
+  const { isToggled, toggle } = useToggle();
   return (
     <View style={[styles.container, containerStyles]}>
       <Text style={colorText ? colorText : appStyles.textDark}>{label}</Text>
-      <TextInput
-        keyboardType={keyboardType ?? 'default'}
-        style={[
-          styles.input,
-          colorInput ? colorInput : appStyles.inputDark,
-          style,
-        ]}
-        placeholder={placeholder}
-        onChangeText={(text) => onChangeText(text, name)}
-        value={value}
-        placeholderTextColor={placeholderTextColor ?? appColors.opacity}
-        secureTextEntry={secureTextEntry}
-        onFocus={onFocus}
-        multiline={multiline}
-        numberOfLines={8}
-        textBreakStrategy="highQuality"
-        readOnly={readonly}
-      />
+      <View className="flex flex-row">
+        <TextInput
+          className={'w-full'}
+          keyboardType={keyboardType ?? 'default'}
+          style={[
+            styles.input,
+            colorInput ? colorInput : appStyles.inputDark,
+            style,
+          ]}
+          placeholder={placeholder}
+          onChangeText={(text) => onChangeText(text, name)}
+          value={value}
+          placeholderTextColor={placeholderTextColor ?? appColors.opacity}
+          secureTextEntry={secureTextEntry && !isToggled}
+          onFocus={onFocus}
+          multiline={multiline}
+          numberOfLines={8}
+          textBreakStrategy="highQuality"
+          readOnly={readonly}
+        />
+        {icon && (
+          <TouchableButton
+            iconColor={iconColor ?? appColors.white}
+            styles={styles.refreshButton}
+            icon={!secureTextEntry ? icon : isToggled ? 'eye' : 'eye-off'}
+            title=""
+            onPress={toggle}
+          />
+        )}
+      </View>
       <View>
         <Text style={[appStyles.textDanger, styles.textCenter]}>
           {errorMessage}
@@ -81,5 +100,10 @@ const styles = StyleSheet.create({
   },
   textCenter: {
     textAlign: 'center',
+  },
+  refreshButton: {
+    padding: 5,
+    position: 'absolute',
+    right: 10,
   },
 });

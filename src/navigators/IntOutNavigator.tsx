@@ -1,7 +1,7 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { QrScreen } from '../screens/intOut/QrScreen';
-import { InOutStackParamList } from '../types/IInOutNavigator';
+import { InOutStackParamList } from '@app-types/IInOutNavigator';
+import { InOutScreen } from '@screens/intOut/InOutScreen';
 
 const Stack = createStackNavigator<InOutStackParamList>();
 
@@ -12,7 +12,7 @@ export const IntOutNavigator = () => {
         headerShown: true,
       }}
     >
-      <Stack.Screen name="QrScreen" component={QrScreen} />
+      <Stack.Screen name="Entradas/Salidas" component={InOutScreen} />
     </Stack.Navigator>
   );
 };

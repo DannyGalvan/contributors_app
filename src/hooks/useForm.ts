@@ -1,10 +1,10 @@
-import { ChangeEvent, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { useResponse } from './useResponse';
-import { ApiResponse } from '../types/ApiResponse';
-import { ValidationFailure } from '../types/ValidationFailure';
-import { useErrorsStore } from '../stores/useErrorsStore';
-import { ApiError } from '../types/Errors';
+import { useResponse } from '@hooks/useResponse';
+import { ApiResponse } from '@app-types/ApiResponse';
+import { ValidationFailure } from '@app-types/ValidationFailure';
+import { useErrorsStore } from '@stores/useErrorsStore';
+import { ApiError } from '@app-types/Errors';
 
 export interface ErrorObject {
   [key: string]: string | undefined;
@@ -62,17 +62,25 @@ export const useForm = <T, U>(
 
         set(response);
       } catch (error: any) {
-        error instanceof ApiError
-          ? setError({
-              statusCode: error.statusCode,
-              message: error.message,
-              name: error.name,
-            })
-          : set({
-              success: false,
-              data: null,
-              message: `${error?.name} ${error?.stack}`,
-            });
+        if (error instanceof ApiError) {
+          setError({
+            statusCode: error.statusCode,
+            message: error.message,
+            name: error.name,
+          });
+
+          set({
+            success: false,
+            data: null,
+            message: `${error?.name} ${error?.stack}`,
+          });
+        } else {
+          set({
+            success: false,
+            data: null,
+            message: `${error?.name} ${error?.stack}`,
+          });
+        }
       }
     } else {
       set({

@@ -1,18 +1,21 @@
 import { create } from 'zustand';
-import { setAuthorizationHeader } from '../config/axiosConfig';
+import { setAuthorizationHeader } from '@config/axiosConfig';
 import {
   createSessionStorage,
   getSessionStorage,
   removeSessionStorage,
-} from '../database/repository/sessionStorageRepository';
-import { StorageKey } from '../config/constants';
-import { dataSource } from '../database/dataSource';
+} from '@database/repository/sessionStorageRepository';
+import { StorageKey } from '@config/constants';
 
 export interface AuthState {
   isLoggedIn: boolean;
   username?: string;
   token: string;
   idUser: number;
+  employeeCode: string;
+  companyCode: number;
+  startYearToWork: number;
+  startDateToWork: string;
 }
 
 export const InitialAuthState: AuthState = {
@@ -20,12 +23,20 @@ export const InitialAuthState: AuthState = {
   username: undefined,
   token: '',
   idUser: 0,
+  employeeCode: '',
+  companyCode: 0,
+  startYearToWork: 0,
+  startDateToWork: '',
 };
 
 export interface SignIn {
   username: string;
   token: string;
   idUser: number;
+  employeeCode: string;
+  companyCode: number;
+  startYearToWork: number;
+  startDateToWork: string;
 }
 
 interface AuthStoreState {
@@ -44,7 +55,6 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
     const newState = { ...state, isLoggedIn: true };
     set({ authState: newState });
     createSessionStorage(StorageKey.auth, newState);
-    console.log('signIn');
   },
   initializeAuth: async () => {
     set({ isLoadingAuth: true });
@@ -57,12 +67,10 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
     }
 
     set({ isLoadingAuth: false });
-    console.log('initializeAuth');
   },
   logout: () => {
     setAuthorizationHeader('');
     removeSessionStorage(StorageKey.auth);
     set({ authState: InitialAuthState });
-    console.log('logout');
   },
 }));

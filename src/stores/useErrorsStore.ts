@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import { AppError } from '../types/AppError';
+import { AppError } from '@app-types/AppError';
 
 interface ErrorState {
   error: AppError | null;

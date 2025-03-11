@@ -1,6 +1,7 @@
 import { ZodError } from 'zod';
 
-import { ErrorObject } from '../hooks/useForm';
+import { ErrorObject } from '@hooks/useForm';
+import { Alert } from 'react-native';
 
 export const toCamelCase = (inputString: string) => {
   return inputString.replace(
@@ -89,4 +90,42 @@ export const handleOneLevelZodError = ({ issues }: ZodError<unknown>) => {
   });
 
   return formData;
+};
+
+export const dispatchAlert = ({
+  title,
+  message,
+  fn,
+}: {
+  title: string;
+  message: string | ErrorObject;
+  fn?: () => void;
+}) => {
+  if (typeof message === 'object') {
+    let messageString = Object.entries(message)
+      .map(([key, value]) => `${key}: ${value}\n`)
+      .join(', ');
+
+    Alert.alert(title, messageString, [{ text: 'OK', onPress: fn }]);
+
+    return;
+  }
+
+  Alert.alert(title, message, [{ text: 'OK', onPress: fn }]);
+};
+
+export const generateIncrementalPeriods = (
+  startYear: number,
+): { label: string; value: string }[] => {
+  const currentYear = new Date().getFullYear();
+  const periodsArray: { label: string; value: string }[] = [];
+
+  for (let year = startYear; year <= currentYear - 1; year++) {
+    periodsArray.push({
+      label: `Periodo ${year} - ${year + 1}`,
+      value: `${year} - ${year + 1}`,
+    });
+  }
+
+  return periodsArray;
 };

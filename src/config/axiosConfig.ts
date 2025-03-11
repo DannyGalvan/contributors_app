@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { URL_BASE } from './constants';
-import { ForbiddenError, UnauthorizedError } from '../types/Errors';
+import { URL_BASE } from '@config/constants';
+import { ForbiddenError, UnauthorizedError } from '@app-types/Errors';
 
 export const marksApi = axios.create({
   baseURL: URL_BASE,

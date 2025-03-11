@@ -1,10 +1,10 @@
 import { useState } from 'react';
 
-import { ApiResponse } from '../types/ApiResponse';
-import { ValidationFailure } from '../types/ValidationFailure';
+import { ApiResponse } from '@app-types/ApiResponse';
+import { ValidationFailure } from '@app-types/ValidationFailure';
 
 import { ErrorObject } from './useForm';
-import { toCamelCase } from '../utils/converted';
+import { dispatchAlert, toCamelCase } from '@utils/converted';
 
 export const useResponse = <T, U>() => {
   const [t, setT] = useState<T>();
@@ -19,7 +19,10 @@ export const useResponse = <T, U>() => {
       errorsConverted[toCamelCase(error.propertyName)] = error.errorMessage;
     });
 
-    Object.keys(errorsConverted).length !== 0 && setU(errorsConverted);
+    if (Object.keys(errorsConverted).length !== 0) {
+      setU(errorsConverted);
+      dispatchAlert({ title: 'Errores', message: errorsConverted });
+    }
   };
 
   const setErrors = (errors: ErrorObject) => {
@@ -33,7 +36,7 @@ export const useResponse = <T, U>() => {
       showErrors((data as ValidationFailure[]) ?? []);
     }
     setS(success);
-    setM(message!);
+    setM(message);
   };
 
   return { t, u, s, set, setU: setErrors, m };

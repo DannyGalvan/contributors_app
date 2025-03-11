@@ -1,3 +1,4 @@
+import { images } from '@config/images';
 import React from 'react';
 import {
   Image,
@@ -22,7 +23,7 @@ export const Logo = ({ isVisible, style }: Props) => {
         style,
         !isVisible && width >= 768 && styles.visible,
       ]}
-      source={require('../../assets/images/logo.png')}
+      source={images.logo}
     />
   );
 };

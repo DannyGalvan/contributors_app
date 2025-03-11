@@ -1,0 +1,3 @@
+interface RecoveryPasswordRequest {
+  dpi: string;
+}

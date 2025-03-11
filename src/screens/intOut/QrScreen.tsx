@@ -1,88 +1,14 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  Alert,
-  AlertButton,
-  Linking,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import React from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {
-  Camera,
-  Code,
-  useCameraDevice,
-  useCameraPermission,
-  useCodeScanner,
-} from 'react-native-vision-camera';
-import { getAndroidId, getMacAddress } from 'react-native-device-info';
-import { appStyles } from '../../styles/appStyles';
-import { appColors } from '../../styles/appColors';
-
-const showCodeAlert = (value: string, onDismissed: () => void): void => {
-  const buttons: AlertButton[] = [
-    {
-      text: 'Close',
-      style: 'cancel',
-      onPress: onDismissed,
-    },
-  ];
-  if (value.startsWith('http')) {
-    buttons.push({
-      text: 'Open URL',
-      onPress: () => {
-        Linking.openURL(value);
-        onDismissed();
-      },
-    });
-  }
-  Alert.alert('Scanned Code', value, buttons);
-};
+import { Camera } from 'react-native-vision-camera';
+import { appStyles } from '@styles/appStyles';
+import { appColors } from '@styles/appColors';
+import { useQrScanner } from '@hooks/useQrScanner';
 
 export function QrScreen(): React.JSX.Element {
-  const [initialize, setInitialize] = useState(false);
-  const [torch, setTorch] = useState(false);
-  const device = useCameraDevice('back');
-  const { hasPermission, requestPermission } = useCameraPermission();
-  // 4. On code scanned, we show an aler to the user
-  const isShowingAlert = useRef(false);
-  const onCodeScanned = useCallback((codes: Code[]) => {
-    console.log(`Scanned ${codes.length} codes:`, codes);
-    const value = codes[0]?.value;
-    if (value == null) {
-      return;
-    }
-    if (isShowingAlert.current) {
-      return;
-    }
-    showCodeAlert(value, () => {
-      isShowingAlert.current = false;
-    });
-    isShowingAlert.current = true;
-    setTorch(false);
-  }, []);
-
-  const codeScanner = useCodeScanner({
-    codeTypes: ['qr', 'ean-13'],
-    onCodeScanned: onCodeScanned,
-  });
-
-  useEffect(() => {
-    (async () => {
-      if (!hasPermission) {
-        await requestPermission();
-      }
-    })();
-  }, [hasPermission, requestPermission]);
-
-  useEffect(() => {
-    (async () => {
-      const mac = await getAndroidId();
-      const getMac = await getMacAddress();
-      console.log({ mac, getMac });
-    })();
-  }, []);
+  const { device, initialize, setInitialize, torch, setTorch, codeScanner } =
+    useQrScanner();
 
   if (device == null) {
     return (

@@ -1,39 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import { useAuth } from './src/hooks/useAuth';
-import { LoadingScreen } from './src/screens/LoadingScreen';
+import React from 'react';
 import { PrincipalStack } from './src/navigators/PrincipalStack';
 import { NavigationContainer } from '@react-navigation/native';
-import { dataSource } from './src/database/dataSource';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import useNetworkListener from './src/hooks/useNetworkListener';
+import { useDataSource } from './src/hooks/useDataSource';
+import { LoadingScreen } from './src/screens/LoadingScreen';
+
+const client = new QueryClient();
 
 function App(): React.JSX.Element {
-  const [loadDataSource, setLoadDataSource] = useState(false);
-  const { initializeAuth, isLoading } = useAuth();
-
-  useEffect(() => {
-    const connect = async () => {
-      setLoadDataSource(true);
-      try {
-        if (!dataSource.isInitialized) {
-          await dataSource.initialize();
-          await initializeAuth();
-        }
-      } catch (error) {
-        console.log('error', error);
-      }
-      setLoadDataSource(false);
-    };
-
-    connect();
-  }, [isLoading]);
+  useNetworkListener();
+  const { loadDataSource, isLoading } = useDataSource();
 
   return (
-    <NavigationContainer>
-      {isLoading || loadDataSource ? (
-        <LoadingScreen title="Cargando Porfavor Espere..." />
-      ) : (
-        <PrincipalStack />
-      )}
-    </NavigationContainer>
+    <QueryClientProvider client={client}>
+      <NavigationContainer>
+        {isLoading || loadDataSource ? (
+          <LoadingScreen title="Cargando Porfavor Espere..." />
+        ) : (
+          <PrincipalStack />
+        )}
+      </NavigationContainer>
+    </QueryClientProvider>
   );
 }
 

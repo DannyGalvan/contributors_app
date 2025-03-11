@@ -1,7 +1,10 @@
-import type {StackScreenProps} from '@react-navigation/stack';
+import type { StackScreenProps } from '@react-navigation/stack';
 
 export type InOutStackParamList = {
-  QrScreen: undefined;
+  'Entradas/Salidas': undefined;
 };
 
-export type QrScreenProps = StackScreenProps<InOutStackParamList, 'QrScreen'>;
+export type QrScreenProps = StackScreenProps<
+  InOutStackParamList,
+  'Entradas/Salidas'
+>;

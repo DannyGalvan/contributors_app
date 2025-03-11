@@ -9,4 +9,5 @@ export const appColors = {
   warning: '#ffc107',
   info: '#2196f3',
   secondary: '#757575',
+  sky: 'rgb(14, 165, 233)',
 };
