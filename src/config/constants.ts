@@ -1,4 +1,8 @@
-export const URL_BASE = 'http://52.14.32.48/api/v1';
+import { API_URL, APP_ENV, MAPS_API_KEY } from '@env';
+
+console.log(API_URL, MAPS_API_KEY, APP_ENV);
+
+export const URL_BASE = API_URL;
 
 export const NAME_BD = 'quicksqlitetest-typeorm.db';
 
@@ -14,7 +18,7 @@ export const invalid_type_error = 'El tipo provisto es invalido';
 
 export const required_error = 'El campo es requerido';
 
-export const API_KEY = 'AIzaSyDXpDUEBYsQPagnH8poxVZdmswBGkMzL08';
+export const API_KEY = MAPS_API_KEY;
 
 export const IN_OUT_VALUES = [
   { label: 'Entrada', value: 1 },

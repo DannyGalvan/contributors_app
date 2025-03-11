@@ -3,6 +3,7 @@
   "include": ["src/**/*","nativewind-env.d.ts"],
   "compilerOptions": {
     "baseUrl": "./",
+    "typeRoots": ["./node_modules/@types", "./nativewind-env.d.ts", "./src/types"],
     "paths": {
       "@icons/*": ["./src/assets/icon/*"],
       "@images/*": ["./src/assets/images/*"],
