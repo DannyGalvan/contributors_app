@@ -1,6 +1,6 @@
-import { API_URL, APP_ENV, MAPS_API_KEY } from '@env';
+import { API_URL, ENV_APP, MAPS_API_KEY } from '@env';
 
-console.log(API_URL, MAPS_API_KEY, APP_ENV);
+console.log(API_URL, MAPS_API_KEY, ENV_APP);
 
 export const URL_BASE = API_URL;
 
