@@ -7,7 +7,7 @@
     "android:prod": "cross-env ENV_APP=release react-native run-android",
     "build:android:dev": "cross-env ENV_APP=debug  react-native run-android --variant=release",
     "build:android:prod": "cross-env ENV_APP=release react-native run-android --variant=release",
-    "build.android": "cross-env ENV_APP=release cd android && ./gradlew assembleRelease",
+    "build.android": "cd android && cross-env ENV_APP=release ./gradlew assembleRelease",
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",

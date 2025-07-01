@@ -22,5 +22,5 @@ export const icons: Record<iconsName, number> = {
 };
 
 export const images: Record<imagesName, number> = {
-  logo: require('@images/logo.png'),
+  logo: require('@images/LOGO-APP.png'),
 };

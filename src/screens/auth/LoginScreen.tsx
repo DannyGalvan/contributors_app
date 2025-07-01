@@ -78,7 +78,7 @@ export const LoginScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.screen}>
-      <Title text="Bienvenid@ de Nuevo" />
+      <Title text="Bienvenid@s" />
 
       <View style={styles.containerLogo}>
         <Logo isVisible={false} style={styles.logo} />

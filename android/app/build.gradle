@@ -77,6 +77,8 @@ def localProperties = new Properties()
 def localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
     localProperties.load(new FileInputStream(localPropertiesFile))
+}else {
+    throw new GradleException("local.properties file not found")
 }
 
 android {
