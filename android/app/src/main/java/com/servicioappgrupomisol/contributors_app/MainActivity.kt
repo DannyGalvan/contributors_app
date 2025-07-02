@@ -1,4 +1,4 @@
-package com.contributors_app
+package com.servicioappgrupomisol.contributors_app
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

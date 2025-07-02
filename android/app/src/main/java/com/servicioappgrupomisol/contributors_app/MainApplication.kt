@@ -1,4 +1,4 @@
-package com.contributors_app
+package com.servicioappgrupomisol.contributors_app
 
 import android.app.Application
 import com.facebook.react.PackageList
