@@ -5,8 +5,8 @@
   "scripts": {
     "android:dev": "cross-env ENV_APP=debug react-native run-android",
     "android:prod": "cross-env ENV_APP=release react-native run-android",
-    "build:android:dev": "cross-env ENV_APP=debug  react-native run-android --variant=release",
-    "build:android:prod": "cross-env ENV_APP=release react-native run-android --variant=release",
+    "build:android:dev": "cross-env ENV_APP=debug  react-native build-android --mode=release",
+    "build:android:prod": "cross-env ENV_APP=release react-native build-android --mode=release",
     "build.android": "cd android && cross-env ENV_APP=release ./gradlew assembleRelease",
     "ios": "react-native run-ios",
     "lint": "eslint .",

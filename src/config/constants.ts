@@ -1,6 +1,6 @@
 import { API_URL, ENV_APP, MAPS_API_KEY } from '@env';
 
-console.log([API_URL, MAPS_API_KEY, ENV_APP]);
+console.log({ API_URL, MAPS_API_KEY, ENV_APP, message: 'Constants' });
 
 export const URL_BASE = API_URL;
 
@@ -14,7 +14,7 @@ export const formatString = 'dd/MM/yyyy h:mm:ss a';
 
 export const formatStringDate = 'dd/MM/yyyy';
 
-export const invalid_type_error = 'El tipo provisto es invalido';
+export const invalid_type_error = 'El tipo provisto no es válido';
 
 export const required_error = 'El campo es requerido';
 
