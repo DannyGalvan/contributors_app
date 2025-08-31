@@ -60,7 +60,13 @@ export const InOutForm = () => {
             setLocation(item);
           }}
           queryFn={() =>
-            getLocationByEmployeeCode(`EmployeeCode:eq:${employeeCode}`)
+            getLocationByEmployeeCode({
+              filters: `EmployeeCode:eq:${employeeCode} AND Center.State:eq:1`,
+              include: 'location',
+              includeTotal: false,
+              pageNumber: 1,
+              pageSize: 10,
+            })
           }
           selector={(data) => data.location.description}
         />

@@ -1,11 +1,27 @@
 import { marksApi } from '@config/axiosConfig';
 import { ApiResponse } from '@app-types/ApiResponse';
 import { PermitterMarks } from '@app-types/PermitterMarks';
+import { filterOptions } from '@app-types/FilterOptions';
 
-export const getLocationByEmployeeCode = async (filters: string) => {
-  const response = await marksApi.get<any, ApiResponse<PermitterMarks[]>>(
-    `PermittedMarkings?filters=${filters}&thenInclude=true&pageNumber=1&pageSize=100`,
-  );
+export const getLocationByEmployeeCode = async ({
+  pageNumber = 1,
+  pageSize = 10,
+  filters,
+  include,
+  includeTotal = false,
+}: filterOptions): Promise<PermitterMarks[]> => {
+  let baseQuery = `PermittedMarkings?pageNumber=${pageNumber}&pageSize=${pageSize}`;
 
-  return response.data;
+  if (filters) {
+    baseQuery += `&filters=${encodeURIComponent(filters)}`;
+  }
+  if (include) {
+    baseQuery += `&include=${encodeURIComponent(include)}`;
+  }
+  if (includeTotal) {
+    baseQuery += `&includeTotal=${includeTotal}`;
+  }
+
+  return (await marksApi.get<unknown, ApiResponse<PermitterMarks[]>>(baseQuery))
+    .data;
 };

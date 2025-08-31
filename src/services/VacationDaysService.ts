@@ -1,11 +1,28 @@
 import { marksApi } from '@config/axiosConfig';
 import { ApiResponse } from '@app-types/ApiResponse';
 import { ViewVacationDays } from '@app-types/ViewVacationDays';
+import { filterOptions } from '@app-types/FilterOptions';
 
-export const getAllVacationsDays = async (filters: string) => {
-  const response = await marksApi.get<any, ApiResponse<ViewVacationDays[]>>(
-    `VacationDays?filters=${filters}&thenInclude=true&pageNumber=1&pageSize=1000`,
-  );
+export const getAllVacationsDays = async ({
+  pageNumber = 1,
+  pageSize = 10,
+  filters,
+  include,
+  includeTotal = false,
+}: filterOptions): Promise<ViewVacationDays[]> => {
+  let baseQuery = `VacationDays?pageNumber=${pageNumber}&pageSize=${pageSize}`;
 
-  return response.data;
+  if (filters) {
+    baseQuery += `&filters=${encodeURIComponent(filters)}`;
+  }
+  if (include) {
+    baseQuery += `&include=${encodeURIComponent(include)}`;
+  }
+  if (includeTotal) {
+    baseQuery += `&includeTotal=${includeTotal}`;
+  }
+
+  return (
+    await marksApi.get<unknown, ApiResponse<ViewVacationDays[]>>(baseQuery)
+  ).data;
 };

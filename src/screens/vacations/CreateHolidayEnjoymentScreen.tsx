@@ -72,7 +72,15 @@ export const CreateHolidayEnjoymentScreen = () => {
           onSelect={(item) => {
             handleChange('period', `${item.initialYear} - ${item.finalYear}`);
           }}
-          queryFn={() => getAllVacationsDays(`EmployeeCode:eq:${employeeCode}`)}
+          queryFn={() =>
+            getAllVacationsDays({
+              filters: `EmployeeCode:eq:${employeeCode}`,
+              include: '',
+              includeTotal: false,
+              pageNumber: 1,
+              pageSize: 1000,
+            })
+          }
           selector={(data) =>
             `${data.initialYear} - ${data.finalYear} - ${data.days} días`
           }

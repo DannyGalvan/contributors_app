@@ -9,7 +9,5 @@ export const createInOut = async (InOut: InOutRequest) => {
     ApiResponse<InOutRequest | ValidationFailure[]>
   >('/inOut', InOut);
 
-  console.log('response', response);
-
   return response;
 };

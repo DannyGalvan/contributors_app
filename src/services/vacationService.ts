@@ -14,7 +14,7 @@ export const createVacations = async (vacation: VacationRequest) => {
 
 export const getAllVacations = async (userId: number) => {
   const response = await marksApi.get<any, ApiResponse<VacationResponse[]>>(
-    `Vacation?filters=ContributorId:eq:${userId}&thenInclude=true&pageNumber=1&pageSize=1000`,
+    `Vacation??Filters=ContributorId:eq:${userId}&Include=contributor&PageNumber=1&PageSize=1000&IncludeTotal=false`,
   );
 
   return response;
