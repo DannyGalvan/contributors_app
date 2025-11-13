@@ -41,7 +41,7 @@ export const RecoveryPasswordScreen = () => {
     } else {
       dispatchAlert({
         title: 'Exito',
-        message: response.message,
+        message: 'Se ha enviado un correo para restablecer su contraseña',
         fn: () => navigate('ChangePassword'),
       });
     }

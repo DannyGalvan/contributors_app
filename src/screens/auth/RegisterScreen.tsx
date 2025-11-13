@@ -44,7 +44,9 @@ export const RegisterScreen = () => {
 
     dispatchAlert({
       title: 'Mensaje',
-      message: response.message,
+      message: !response.success
+        ? response.message
+        : 'Usuario creado con exito',
       fn: () => {
         if (response.success) navigate('Login');
       },

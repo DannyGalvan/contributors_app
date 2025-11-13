@@ -25,9 +25,13 @@ export const useUpdateLocations = () => {
     }
 
     // Get locations
-    const locations = await getLocationByEmployeeCode(
-      `EmployeeCode:eq:${employeeCode}`,
-    );
+    const locations = await getLocationByEmployeeCode({
+      filters: `EmployeeCode:eq:${employeeCode}`,
+      include: 'location,company',
+      includeTotal: false,
+      pageNumber: 1,
+      pageSize: 100,
+    });
     // drop all locations
     await dropAllLocationStores();
     // Save locations

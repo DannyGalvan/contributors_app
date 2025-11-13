@@ -64,8 +64,8 @@ export const useInOut = () => {
       };
     }
 
-    if (distance.distance >= 100) {
-      const message = `La distancia entre la ubicación actual y la de la empresa es mayor a 100 metros : hay ${distance.distance} mts de distancia`;
+    if (distance.distance >= 25) {
+      const message = `La distancia entre la ubicación actual y la de la empresa es mayor a 25  metros : hay ${distance.distance} mts de distancia`;
       Alert.alert('Error', message);
 
       return {
@@ -86,7 +86,7 @@ export const useInOut = () => {
       return response;
     }
 
-    Alert.alert('Exito', response.message);
+    Alert.alert('Exito', 'Marcaje realizado con exito');
 
     updateSearch('locations', '');
     updateSearch('entrada/salida', '');

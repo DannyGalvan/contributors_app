@@ -60,7 +60,7 @@ export const ChangePasswordScreen = () => {
       } else {
         dispatchAlert({
           title: 'Exito',
-          message: response.message,
+          message: 'Contraseña cambiada con exito',
         });
         navigate('Login');
       }
