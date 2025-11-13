@@ -3,7 +3,6 @@ module.exports = function (api) {
   return {
     presets: ['module:@react-native/babel-preset'],
     plugins: [
-      'react-native-reanimated/plugin',
       'nativewind/babel',
       [
         'module:react-native-dotenv',
@@ -23,7 +22,7 @@ module.exports = function (api) {
         {
           root: ['./src'],
           alias: {
-            'react-native-sqlite-storage': 'react-native-quick-sqlite',
+            'react-native-sqlite-storage': 'react-native-nitro-sqlite',
             '@icons': './src/assets/icons',
             '@images': './src/assets/images',
             '@components': './src/components',
@@ -44,6 +43,7 @@ module.exports = function (api) {
         },
       ],
       ['@babel/plugin-proposal-decorators', { legacy: true }],
+      'react-native-worklets/plugin',
     ],
   };
 };
