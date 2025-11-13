@@ -1,4 +1,4 @@
-import { typeORMDriver } from 'react-native-quick-sqlite';
+import { typeORMDriver } from 'react-native-nitro-sqlite';
 import { DataSource } from 'typeorm';
 import { SessionStorage } from '@database/models/SessionStorage';
 import { NAME_BD } from '@config/constants';

@@ -34,5 +34,6 @@
             "username": "comprasweb",
             "password": "SzQ#Ts84oyMA"
         }
-    ]
+    ],
+    "java.configuration.updateBuildConfiguration": "interactive"
 }
