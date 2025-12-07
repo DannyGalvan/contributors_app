@@ -12,7 +12,7 @@ export interface ErrorObject {
 
 export const useForm = <T, U>(
   initialForm: T,
-  validateForm: (form: T) => ErrorObject,
+  validateForm: (form: T) => Promise<ErrorObject> | ErrorObject,
   peticion: (form: T) => Promise<ApiResponse<U | ValidationFailure[]>>,
   reboot?: boolean,
 ) => {
@@ -25,18 +25,21 @@ export const useForm = <T, U>(
     setForm(initialForm);
   }, [initialForm]);
 
-  const handleChange = (field: string, value: any) => {
+  const handleChange = async (field: string, value: any) => {
     const newForm = {
       ...form,
       [field]: value,
     };
 
     setForm(newForm);
-    setU(validateForm(newForm));
+
+    const valErr = await validateForm(newForm);
+
+    setU(valErr);
   };
 
-  const handleBlur = (field: string, value: any) => {
-    handleChange(field, value);
+  const handleBlur = async (field: string, value: any) => {
+    await handleChange(field, value);
   };
 
   const handleSubmit = async () => {
@@ -46,7 +49,7 @@ export const useForm = <T, U>(
       message: null,
     });
 
-    const valErr = validateForm(form);
+    const valErr = await validateForm(form);
     setU(valErr);
     setLoading(true);
 

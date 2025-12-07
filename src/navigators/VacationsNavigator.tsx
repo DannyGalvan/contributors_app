@@ -11,6 +11,7 @@ const Stack = createStackNavigator<VacationsStackParamList>();
 export const VacationsNavigator = () => {
   return (
     <Stack.Navigator
+      id="vacationsNavigator"
       initialRouteName="SelectVacationPay"
       screenOptions={{
         headerShown: true,

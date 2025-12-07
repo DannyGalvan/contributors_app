@@ -28,6 +28,7 @@ export const PrincipalStack = () => {
   if (error) {
     return (
       <Stack.Navigator
+        id="principalNavigator"
         screenOptions={{
           headerShown: false,
         }}
@@ -39,6 +40,7 @@ export const PrincipalStack = () => {
 
   return (
     <Stack.Navigator
+      id="principalNavigator"
       screenOptions={{
         headerShown: false,
       }}

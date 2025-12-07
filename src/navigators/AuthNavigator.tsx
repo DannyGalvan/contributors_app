@@ -11,6 +11,7 @@ const Stack = createStackNavigator<AuthParamList>();
 export const AuthNavigator = () => {
   return (
     <Stack.Navigator
+      id="authNavigator"
       screenOptions={{
         headerShown: false,
       }}

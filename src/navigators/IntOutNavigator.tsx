@@ -8,6 +8,7 @@ const Stack = createStackNavigator<InOutStackParamList>();
 export const IntOutNavigator = () => {
   return (
     <Stack.Navigator
+      id="intOutNavigator"
       screenOptions={{
         headerShown: true,
       }}

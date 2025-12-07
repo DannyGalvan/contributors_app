@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { use, useEffect } from 'react';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { Title } from '@components/pure/Title';
 import { LabelText } from '@components/pure/LabelText';
 import { VacationRequest } from '@app-types/VacationRequest';
@@ -14,7 +14,13 @@ import { appColors } from '@styles/appColors';
 import { OnlineButton } from '@components/button/OnlineButton';
 import { useVacations } from '@hooks/useVacations';
 import { InputSelect } from '@components/input/InputSelect';
-import { getAllVacationsDays } from '@services/VacationDaysService';
+import {
+  getAllVacationsDays,
+  getVacationDaysByEmployeeCode,
+} from '@services/VacationDaysService';
+import { useQuery } from '@tanstack/react-query';
+import { useErrorsStore } from '@stores/useErrorsStore';
+import { ApiError } from '@app-types/Errors';
 
 const initialVacationPay: VacationRequest = {
   contributorId: 0,
@@ -38,10 +44,22 @@ const vacationPayValidations = (vacation: VacationRequest) => {
 };
 
 export const CreateVacationPayScreen = () => {
+  const { setError } = useErrorsStore();
   const { employeeCode, username, sendForm } = useVacations();
 
   const { errors, handleChange, handleSubmit, loading, message, success } =
     useForm(initialVacationPay, vacationPayValidations, sendForm, true);
+
+  const { data, error, isLoading } = useQuery({
+    queryKey: ['holidayPeriods', employeeCode],
+    queryFn: () => getVacationDaysByEmployeeCode(1, Number(employeeCode)),
+  });
+
+  useEffect(() => {
+    if (error) {
+      setError(error as ApiError);
+    }
+  }, [error, setError]);
 
   return (
     <View>
@@ -52,6 +70,27 @@ export const CreateVacationPayScreen = () => {
       />
       <LabelText label="Código de empleado" text={employeeCode} />
       <LabelText label="Nombre empleado" text={username} />
+      {isLoading ? (
+        <View>
+          <ActivityIndicator size="large" color={appColors.info} />
+          <Text className="text-gray-700">Cargando datos de vacaciones...</Text>
+        </View>
+      ) : (
+        <>
+          <LabelText
+            label="Dias Derecho"
+            text={`${data.data.DiasDerecho.toString()} dias`}
+          />
+          <LabelText
+            label="Dias Gozados"
+            text={`${data.data.DiasGozados.toString()} dias`}
+          />
+          <LabelText
+            label="Dias Disponibles"
+            text={`${data.data.DiasDisponibles.toString()} dias`}
+          />
+        </>
+      )}
       <View>
         <Text className="text-black font-bold text-xl mx-5">
           Seleccionar Periodo
@@ -60,7 +99,7 @@ export const CreateVacationPayScreen = () => {
           entity="Periodo"
           textInput={'Selecciona un'}
           queryKey="holidayPeriods"
-          onSelect={(item) => {
+          onSelect={item => {
             handleChange('period', `${item.initialYear} - ${item.finalYear}`);
           }}
           queryFn={() =>
@@ -72,7 +111,7 @@ export const CreateVacationPayScreen = () => {
               pageSize: 1000,
             })
           }
-          selector={(data) =>
+          selector={data =>
             `${data.initialYear} - ${data.finalYear} - ${data.days} días`
           }
         />

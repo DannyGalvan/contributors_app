@@ -14,6 +14,7 @@ export const OvertimeNavigator = () => {
   const { navigate } = useNavigation<NavigationProp<OvertimeStackParamList>>();
   return (
     <Stack.Navigator
+      id="overtimeNavigator"
       initialRouteName="HorasExtras"
       screenOptions={{
         headerShown: true,

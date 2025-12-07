@@ -4,8 +4,9 @@ import {
   invalid_type_error,
   required_error,
 } from '@config/constants';
-import { parse } from 'date-fns';
+import { differenceInBusinessDays, differenceInDays, parse } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { getVacationDaysByEmployeeCode } from '@services/VacationDaysService';
 
 export const vacationShema = z.object({
   period: z
@@ -13,7 +14,7 @@ export const vacationShema = z.object({
     .min(11, 'El periodo debe tener al menos 7 caracteres')
     .max(11, 'El periodo debe tener como máximo 7 caracteres')
     .regex(/^\d{4} - \d{4}$/, 'El periodo debe tener el formato AAAA - AAAA')
-    .refine((value) => value !== '', { message: 'El periodo es requerido' }),
+    .refine(value => value !== '', { message: 'El periodo es requerido' }),
   startDate: z
     .string({ invalid_type_error, required_error })
     .min(10, 'La fecha de inicio debe tener 10 caracteres')
@@ -22,8 +23,15 @@ export const vacationShema = z.object({
       /^\d{2}\/\d{2}\/\d{4}$/,
       'La fecha de inicio debe tener el formato DD-MM-AAAA',
     )
-    .refine((value) => value !== '', {
+    .refine(value => value !== '', {
       message: 'La fecha de inicio es requerida',
+    }),
+  employeeCode: z
+    .number({ invalid_type_error, required_error })
+    .int()
+    .positive('El código de empleado debe ser un número positivo')
+    .refine(value => value !== 0, {
+      message: 'El código de empleado es requerido',
     }),
   endDate: z
     .string({ invalid_type_error, required_error })
@@ -33,14 +41,14 @@ export const vacationShema = z.object({
       /^\d{2}\/\d{2}\/\d{4}$/,
       'La fecha de fin debe tener el formato DD-MM-AAAA',
     )
-    .refine((value) => value !== '', {
+    .refine(value => value !== '', {
       message: 'La fecha de fin es requerida',
     }),
   vacationType: z
     .number({ invalid_type_error, required_error })
     .int()
     .positive('El tipo de vacaciones debe ser un número positivo')
-    .refine((value) => value !== 0, {
+    .refine(value => value !== 0, {
       message: 'El tipo de vacaciones es requerido',
     }),
   state: z
@@ -52,11 +60,12 @@ export const vacationShema = z.object({
 export const vacationPayShema = vacationShema.omit({
   endDate: true,
   startDate: true,
+  employeeCode: true,
 });
 
 export const enjoyVacationShema = vacationShema
   .refine(
-    (value) => {
+    value => {
       const startTime = parse(value.startDate, formatStringDate, new Date(), {
         locale: es,
       });
@@ -72,7 +81,7 @@ export const enjoyVacationShema = vacationShema
     },
   )
   .refine(
-    (value) => {
+    value => {
       const startTime = parse(value.startDate, formatStringDate, new Date(), {
         locale: es,
       });
@@ -84,6 +93,44 @@ export const enjoyVacationShema = vacationShema
     },
     {
       message: 'la fecha de fin debe ser mayor a la fecha de inicio',
+      path: ['endDate'],
+    },
+  )
+  .refine(
+    async value => {
+      try {
+        // Parsear las fechas
+        const startDate = parse(value.startDate, formatStringDate, new Date(), {
+          locale: es,
+        });
+        const endDate = parse(value.endDate, formatStringDate, new Date(), {
+          locale: es,
+        });
+
+        // Calcular días solicitados (incluyendo ambos días)
+        const requestedDays = differenceInBusinessDays(endDate, startDate) + 1;
+
+        // Obtener días disponibles del API
+        const availableDaysResponse = await getVacationDaysByEmployeeCode(
+          1,
+          value.employeeCode,
+        );
+
+        if (!availableDaysResponse.success) {
+          return false;
+        }
+
+        const availableDays = availableDaysResponse.data.DiasDisponibles;
+
+        // Validar que los días solicitados no excedan los disponibles
+        return requestedDays <= availableDays;
+      } catch (error) {
+        console.error('Error al validar días de vacaciones:', error);
+        return false;
+      }
+    },
+    {
+      message: 'Los días solicitados exceden los días disponibles',
       path: ['endDate'],
     },
   );
