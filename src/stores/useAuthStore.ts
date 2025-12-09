@@ -47,10 +47,10 @@ interface AuthStoreState {
   logout: () => void;
 }
 
-export const useAuthStore = create<AuthStoreState>((set) => ({
+export const useAuthStore = create<AuthStoreState>(set => ({
   authState: InitialAuthState,
-  isLoadingAuth: false,
-  signIn: (state) => {
+  isLoadingAuth: true,
+  signIn: state => {
     setAuthorizationHeader(state.token);
     const newState = { ...state, isLoggedIn: true };
     set({ authState: newState });
