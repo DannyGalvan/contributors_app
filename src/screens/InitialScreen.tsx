@@ -2,6 +2,7 @@ import { useDataSource } from '@hooks/useDataSource';
 import { useVerifyVersion } from '@hooks/useVerifyVersion';
 import { LoadingScreen } from './LoadingScreen';
 import { PrincipalStack } from '@navigations/PrincipalStack';
+import { UpdateScreen } from './UpdateScreen';
 
 export const InitialScreen = () => {
   const { loadDataSource, isLoading } = useDataSource();
@@ -17,7 +18,7 @@ export const InitialScreen = () => {
 
   if (!isVerified) {
     return (
-      <LoadingScreen title="Versión de la aplicación desactualizada. Por favor actualice la aplicación desde la Play Store." />
+      <UpdateScreen title="Versión de la aplicación desactualizada. Por favor actualice la aplicación desde la Play Store." />
     );
   }
 
