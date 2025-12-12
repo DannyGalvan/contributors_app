@@ -1,6 +1,6 @@
 {
   "name": "contributors_app",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": true,
   "scripts": {
     "android:dev": "cross-env ENV_APP=debug react-native run-android",

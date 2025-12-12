@@ -4,7 +4,7 @@ console.log({ API_URL, MAPS_API_KEY, ENV_APP, message: 'Constants' });
 
 export const URL_BASE = API_URL;
 
-export const APP_VERSION = '1.0.3';
+export const APP_VERSION = '1.0.4';
 
 export const NAME_BD = 'quicksqlitetest-typeorm.db';
 
