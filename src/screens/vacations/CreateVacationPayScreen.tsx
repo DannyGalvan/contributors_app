@@ -47,7 +47,7 @@ export const CreateVacationPayScreen = () => {
   const { setError } = useErrorsStore();
   const { employeeCode, username, sendForm } = useVacations();
 
-  const { errors, handleChange, handleSubmit, loading, message, success } =
+  const { handleSubmit, loading, message, success, handleChange, errors } =
     useForm(initialVacationPay, vacationPayValidations, sendForm, true);
 
   const { data, error, isLoading } = useQuery({
@@ -77,14 +77,6 @@ export const CreateVacationPayScreen = () => {
         </View>
       ) : (
         <>
-          <LabelText
-            label="Dias Derecho"
-            text={`${data.data.DiasDerecho.toString()} dias`}
-          />
-          <LabelText
-            label="Dias Gozados"
-            text={`${data.data.DiasGozados.toString()} dias`}
-          />
           <LabelText
             label="Dias Disponibles"
             text={`${data.data.DiasDisponibles.toString()} dias`}

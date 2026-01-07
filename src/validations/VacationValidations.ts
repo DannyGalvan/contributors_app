@@ -2,17 +2,18 @@ import { z } from 'zod';
 import {
   formatStringDate,
   invalid_type_error,
+  MAX_REQUESTS_DAYS_VACATIONS,
   required_error,
 } from '@config/constants';
-import { differenceInBusinessDays, differenceInDays, parse } from 'date-fns';
+import { differenceInBusinessDays, parse } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { getVacationDaysByEmployeeCode } from '@services/VacationDaysService';
 
 export const vacationShema = z.object({
   period: z
     .string({ invalid_type_error, required_error })
-    .min(11, 'El periodo debe tener al menos 7 caracteres')
-    .max(11, 'El periodo debe tener como máximo 7 caracteres')
+    .min(11, 'El periodo debe tener al menos 11 caracteres')
+    .max(11, 'El periodo debe tener como máximo 11 caracteres')
     .regex(/^\d{4} - \d{4}$/, 'El periodo debe tener el formato AAAA - AAAA')
     .refine(value => value !== '', { message: 'El periodo es requerido' }),
   startDate: z
@@ -61,6 +62,7 @@ export const vacationPayShema = vacationShema.omit({
   endDate: true,
   startDate: true,
   employeeCode: true,
+  period: true,
 });
 
 export const enjoyVacationShema = vacationShema
@@ -122,15 +124,25 @@ export const enjoyVacationShema = vacationShema
 
         const availableDays = availableDaysResponse.data.DiasDisponibles;
 
+        // Validar que los días solicitados no excedan el máximo permitido
+        if (requestedDays > MAX_REQUESTS_DAYS_VACATIONS) {
+          return false;
+        }
+
         // Validar que los días solicitados no excedan los disponibles
-        return requestedDays <= availableDays;
+        const isValid = requestedDays <= availableDays;
+
+        return isValid;
       } catch (error) {
         console.error('Error al validar días de vacaciones:', error);
         return false;
       }
     },
     {
-      message: 'Los días solicitados exceden los días disponibles',
+      message:
+        'Los días solicitados exceden los días disponibles ni ser mas de ' +
+        MAX_REQUESTS_DAYS_VACATIONS +
+        ' días hábiles',
       path: ['endDate'],
     },
   );

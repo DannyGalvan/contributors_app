@@ -38,14 +38,13 @@ export const VacationsScreen = () => {
   return (
     <View>
       <Title text="Solicitudes de Vacaciones" />
-
       <View className="h-[90%]">
         <FlatList
           data={data?.data ?? []}
-          renderItem={(item) => <VacationCard data={item.item} />}
+          renderItem={item => <VacationCard data={item.item} />}
           refreshing={isPending}
           onRefresh={refetch}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={item => item.id.toString()}
           ListEmptyComponent={
             <View className="flex-1 justify-center items-center h-[500]">
               <Text className="text-center text-gray-500 font-bold text-2xl">

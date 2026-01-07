@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
   ActivityIndicator,
   ScrollView,
@@ -27,6 +27,7 @@ import {
   getVacationDaysByEmployeeCode,
 } from '@services/VacationDaysService';
 import { useQuery } from '@tanstack/react-query';
+import { useErrorsStore } from '@stores/useErrorsStore';
 
 const initialVacationPay: VacationRequest = {
   contributorId: 0,
@@ -38,6 +39,7 @@ const initialVacationPay: VacationRequest = {
 };
 
 export const CreateHolidayEnjoymentScreen = () => {
+  const { setError } = useErrorsStore();
   const { employeeCode, username, sendForm } = useVacations();
 
   const vacationEnjoyValidations = useCallback(
@@ -72,6 +74,12 @@ export const CreateHolidayEnjoymentScreen = () => {
     queryFn: () => getVacationDaysByEmployeeCode(1, Number(employeeCode)),
   });
 
+  useEffect(() => {
+    if (error) {
+      setError(error as any);
+    }
+  }, [error, setError]);
+
   return (
     <ScrollView>
       <Title text="Crear Solicitud" />
@@ -89,20 +97,12 @@ export const CreateHolidayEnjoymentScreen = () => {
       ) : (
         <>
           <LabelText
-            label="Dias Derecho"
-            text={`${data.data.DiasDerecho.toString()} dias`}
-          />
-          <LabelText
-            label="Dias Gozados"
-            text={`${data.data.DiasGozados.toString()} dias`}
-          />
-          <LabelText
             label="Dias Disponibles"
             text={`${data.data.DiasDisponibles.toString()} dias`}
           />
         </>
       )}
-      <View>
+      {/* <View>
         <Text className="text-black font-bold text-xl mx-5">
           Seleccionar Periodo
         </Text>
@@ -127,7 +127,7 @@ export const CreateHolidayEnjoymentScreen = () => {
           }
         />
         <Text className="text-red-700 text-sm px-5">{errors?.period}</Text>
-      </View>
+      </View> */}
       <InputDateTime
         label="Fecha Inicio"
         name="startDate"

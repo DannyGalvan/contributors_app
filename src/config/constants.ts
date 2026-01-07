@@ -8,6 +8,8 @@ export const APP_VERSION = '1.0.4';
 
 export const NAME_BD = 'quicksqlitetest-typeorm.db';
 
+export const MAX_REQUESTS_DAYS_VACATIONS = 15;
+
 export const StorageKey = {
   auth: '@auth',
 };
