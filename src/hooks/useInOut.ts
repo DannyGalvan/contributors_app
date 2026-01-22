@@ -10,6 +10,7 @@ import { ValidationFailure } from '@app-types/ValidationFailure';
 import { calculateDistance } from '@services/distanceService';
 import { createInOut } from '@services/inOutService';
 import { updateSearch } from '@observables/searchObservable';
+import { getAppValueByKey } from '@services/appValuesService';
 
 export const useInOut = () => {
   const { employeeCode, companyCode, idUser, username } = useAuth();
@@ -55,6 +56,8 @@ export const useInOut = () => {
       longitude: location.location.longitude,
     });
 
+    form.distance = distance.distance;
+
     if (!distance.success) {
       Alert.alert('Error', distance.message);
       return {
@@ -64,8 +67,26 @@ export const useInOut = () => {
       };
     }
 
-    if (distance.distance >= 25) {
-      const message = `La distancia entre la ubicación actual y la de la empresa es mayor a 25  metros : hay ${distance.distance} mts de distancia`;
+    const marginOfErrorResponse = await getAppValueByKey(
+      'MarginOfErrorDistance',
+    );
+
+    if (!marginOfErrorResponse.success) {
+      Alert.alert('Error', marginOfErrorResponse.message);
+
+      return {
+        success: false,
+        message: marginOfErrorResponse.message,
+        data: [],
+      };
+    }
+
+    const marginOfError = marginOfErrorResponse.data.value
+      ? parseFloat(marginOfErrorResponse.data.value)
+      : 25;
+
+    if (distance.distance >= marginOfError) {
+      const message = `La distancia entre la ubicación actual y la de la empresa es mayor a ${marginOfError} metros : hay ${distance.distance} mts de distancia`;
       Alert.alert('Error', message);
 
       return {
@@ -81,7 +102,7 @@ export const useInOut = () => {
       const errors = response.data as ValidationFailure[];
       Alert.alert(
         'Error',
-        `${response.message} ${errors.map((e) => e.errorMessage).join(', ')}`,
+        `${response.message} ${errors.map(e => e.errorMessage).join(', ')}`,
       );
       return response;
     }

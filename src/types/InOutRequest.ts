@@ -6,6 +6,7 @@ export interface InOutRequest {
   locationId?: number;
   longitude?: string;
   latitude?: string;
+  distance?: number;
   state?: number;
   createdBy?: number;
   updatedBy?: number;

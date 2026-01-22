@@ -23,6 +23,7 @@ const initialInOut: InOutRequest = {
   longitude: '',
   state: 1,
   type: 2,
+  distance: 0,
 };
 
 const inOutValidations = (form: InOutRequest) => {
@@ -55,7 +56,7 @@ export const InOutForm = () => {
           entity="ubicación"
           textInput={'Selecciona una'}
           queryKey="locations"
-          onSelect={(item) => {
+          onSelect={item => {
             handleChange('locationId', item.id);
             setLocation(item);
           }}
@@ -68,7 +69,7 @@ export const InOutForm = () => {
               pageSize: 10,
             })
           }
-          selector={(data) => data.location.description}
+          selector={data => data.location.description}
         />
         <Text className="text-red-700 text-sm px-5">{errors?.locationId}</Text>
       </View>
@@ -80,8 +81,8 @@ export const InOutForm = () => {
           entity="entrada/salida"
           textInput="Selecciona una"
           data={IN_OUT_VALUES}
-          onSelect={(item) => handleChange('type', item.value)}
-          selector={(data) => data.label}
+          onSelect={item => handleChange('type', item.value)}
+          selector={data => data.label}
         />
         <Text className="text-red-700 text-sm px-5">{errors?.type}</Text>
       </View>
