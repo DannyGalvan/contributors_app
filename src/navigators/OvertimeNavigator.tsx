@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import { OvertimeScreen } from '@screens/overtime/OvertimeScreen';
@@ -13,7 +12,6 @@ const Stack = createStackNavigator<OvertimeStackParamList>();
 
 export const OvertimeNavigator = () => {
   const { colors, fontWeight } = useTheme();
-  const { navigate } = useNavigation<NavigationProp<OvertimeStackParamList>>();
 
   return (
     <Stack.Navigator
@@ -28,14 +26,17 @@ export const OvertimeNavigator = () => {
       <Stack.Screen
         name="HorasExtras"
         component={OvertimeScreen}
-        options={{
+        options={({ navigation }) => ({
           title: 'Horas Extras',
           headerRight: () => (
-            <TouchableOpacity style={styles.addBtn} onPress={() => navigate('Crear')}>
+            <TouchableOpacity
+              style={styles.addBtn}
+              onPress={() => navigation.navigate('Crear')}
+            >
               <Icon name="add" size={24} color={colors.text.inverse} />
             </TouchableOpacity>
           ),
-        }}
+        })}
       />
       <Stack.Screen
         name="Crear"

@@ -6,17 +6,20 @@ import { InOutForm } from '@components/forms/InOutForm';
 import { PermissionGate } from '@components/layout/PermissionGate';
 import { ScreenBackground } from '@components/layout/ScreenBackground';
 import { GlassCard } from '@components/layout/GlassCard';
+import { TouchableButton } from '@components/button/TouchableButton';
 import { useTheme } from '@hooks/useTheme';
 import { useNetworkStore } from '@stores/useNetworkStore';
 
 const NoConnectionView = () => {
-  const { colors, fontSize, fontWeight, radius } = useTheme();
+  const { colors, fontSize, fontWeight } = useTheme();
+  const { requestRetry, isChecking } = useNetworkStore();
+
   return (
     <ScreenBackground>
       <View style={styles.center}>
         <GlassCard style={styles.card}>
           <Icon
-            name="wifi-outline"
+            name="wifi-off-outline"
             size={48}
             color={colors.status.warning}
             style={styles.icon}
@@ -42,6 +45,15 @@ const NoConnectionView = () => {
             Necesitas conexión a internet para registrar tu entrada o salida.
             Verifica tu conexión e intenta de nuevo.
           </Text>
+          <TouchableButton
+            variant="primary"
+            title="Reintentar"
+            icon="refresh-outline"
+            onPress={requestRetry}
+            loading={isChecking}
+            fullWidth
+            styles={styles.retryBtn}
+          />
         </GlassCard>
       </View>
     </ScreenBackground>
@@ -51,7 +63,8 @@ const NoConnectionView = () => {
 export const InOutScreen = () => {
   const isConnected = useNetworkStore((store) => store.isConnected);
 
-  if (!isConnected) {
+  // If connection status is unknown/checking, show form (prevent flickering)
+  if (isConnected === false) {
     return <NoConnectionView />;
   }
 
@@ -92,5 +105,11 @@ const styles = StyleSheet.create({
   body: {
     textAlign: 'center',
     lineHeight: 22,
+    marginBottom: 16,
+  },
+  retryBtn: {
+    width: '70%',
+    maxWidth: 200,
+    alignSelf: 'center',
   },
 });

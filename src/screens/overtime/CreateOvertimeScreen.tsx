@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -43,7 +43,8 @@ const overtimeValidations = (overtime: OvertimeRequest) => {
 export const CreateOvertimeScreen = () => {
   const { colors, fontSize, fontWeight } = useTheme();
   const { idUser, employeeCode } = useAuth();
-  const { updateLocations, locationString, setLocationString } = useUpdateLocations();
+  const { updateLocations } = useUpdateLocations();
+  const [locationString, setLocationString] = useState('');
 
   const sendForm = async (overtime: OvertimeRequest) => {
     const overtimeInsert: Overtime = {
@@ -60,7 +61,10 @@ export const CreateOvertimeScreen = () => {
     const response = await createOvertime(overtimeInsert);
 
     if (response.success) {
-      dispatchAlert({ title: 'Operacion Exitosa', message: 'Horas extras creadas correctamente' });
+      dispatchAlert({
+        title: 'Operacion Exitosa',
+        message: 'Horas extras creadas correctamente',
+      });
     } else {
       dispatchAlert({ title: 'Error', message: response.message });
     }
@@ -68,8 +72,15 @@ export const CreateOvertimeScreen = () => {
     return response;
   };
 
-  const { errors, handleChange, handleSubmit, loading, message, success, form } =
-    useForm(initialOvertime, overtimeValidations, sendForm, true);
+  const {
+    errors,
+    handleChange,
+    handleSubmit,
+    loading,
+    message,
+    success,
+    form,
+  } = useForm(initialOvertime, overtimeValidations, sendForm, true);
 
   return (
     <FormScreen keyboardOffset={56}>
@@ -83,7 +94,7 @@ export const CreateOvertimeScreen = () => {
           mode="datetime"
           onChange={handleChange}
           value={form.startTime}
-          parsedFn={(date) =>
+          parsedFn={date =>
             format(date, formatString, { locale: es })
               .replace('AM', 'a. m.')
               .replace('PM', 'p. m.')
@@ -98,7 +109,7 @@ export const CreateOvertimeScreen = () => {
           mode="datetime"
           onChange={handleChange}
           value={form.endTime}
-          parsedFn={(date) =>
+          parsedFn={date =>
             format(date, formatString, { locale: es })
               .replace('AM', 'a. m.')
               .replace('PM', 'p. m.')
@@ -107,23 +118,37 @@ export const CreateOvertimeScreen = () => {
         />
 
         <View style={styles.field}>
-          <Text style={[styles.fieldLabel, { color: colors.text.primary, fontSize: fontSize.sm, fontWeight: fontWeight.semibold }]}>
+          <Text
+            style={[
+              styles.fieldLabel,
+              {
+                color: colors.text.primary,
+                fontSize: fontSize.sm,
+                fontWeight: fontWeight.semibold,
+              },
+            ]}
+          >
             Ubicación
           </Text>
           <InputSelect
             entity="ubicación"
             textInput="Selecciona una"
             queryKey={`locations ${employeeCode}`}
-            onSelect={(item) => {
+            onSelect={item => {
               handleChange('locationId', item.Id);
               setLocationString(item.location);
             }}
             onRefresh={updateLocations}
             queryFn={() => getAllLocationStores()}
-            selector={(data) => data.location}
+            selector={data => data.location}
           />
           {errors?.locationId ? (
-            <Text style={[styles.errorText, { color: colors.text.error, fontSize: fontSize.xs }]}>
+            <Text
+              style={[
+                styles.errorText,
+                { color: colors.text.error, fontSize: fontSize.xs },
+              ]}
+            >
               {errors.locationId}
             </Text>
           ) : null}
@@ -134,7 +159,7 @@ export const CreateOvertimeScreen = () => {
           label="Razón"
           placeholder="Razón de las horas extras..."
           value={form.reason}
-          onChangeText={(text) => handleChange('reason', text)}
+          onChangeText={text => handleChange('reason', text)}
           errorMessage={errors?.reason}
           secureTextEntry={false}
           multiline={true}
