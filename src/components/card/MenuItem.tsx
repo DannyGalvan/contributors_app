@@ -1,7 +1,13 @@
 import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { appColors } from '@styles/appColors';
+import {
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useTheme } from '@hooks/useTheme';
 
 interface MenuItemProps {
   title: string;
@@ -9,6 +15,7 @@ interface MenuItemProps {
   image?: number;
   onPress: () => void;
   iconColor?: string;
+  danger?: boolean;
 }
 
 export const MenuItem = ({
@@ -17,33 +24,62 @@ export const MenuItem = ({
   image,
   onPress,
   iconColor,
+  danger = false,
 }: MenuItemProps) => {
+  const { colors, radius, shadows, fontSize, fontWeight } = useTheme();
+
+  const resolvedIconColor = iconColor ?? (danger ? colors.status.danger : colors.icon.primary);
+
   return (
     <TouchableOpacity
       activeOpacity={0.8}
-      style={styles.card}
+      style={[
+        styles.card,
+        {
+          backgroundColor: colors.surface.glassMd,
+          borderColor: danger ? colors.border.glassStrong : colors.border.glass,
+          borderRadius: radius['2xl'],
+          ...shadows.glass,
+        },
+      ]}
       onPress={onPress}
       accessibilityLabel={title}
     >
-      <View className="bg-white p-3 rounded-3xl absolute" style={styles.icon}>
-        {icon && (
-          <Icon name={icon} size={65} color={iconColor || appColors.primary} />
-        )}
+      <View
+        style={[
+          styles.iconWrapper,
+          {
+            backgroundColor: danger
+              ? colors.status.dangerBg
+              : colors.surface.glassLg,
+            borderRadius: radius.xl,
+            borderColor: danger ? colors.status.danger : colors.border.glassStrong,
+          },
+        ]}
+      >
+        {icon && <Icon name={icon} size={34} color={resolvedIconColor} />}
         {image && (
           <Image
             source={image}
-            style={{
-              width: 65,
-              height: 65,
-            }}
+            style={styles.image}
+            resizeMode="contain"
           />
         )}
       </View>
-      {title && (
-        <Text className={'text-black font-bold text-md text-center mt-24'}>
-          {title}
-        </Text>
-      )}
+
+      <Text
+        style={[
+          styles.title,
+          {
+            color: danger ? colors.status.danger : colors.text.primary,
+            fontSize: fontSize.sm,
+            fontWeight: fontWeight.semibold,
+          },
+        ]}
+        numberOfLines={2}
+      >
+        {title}
+      </Text>
     </TouchableOpacity>
   );
 };
@@ -52,17 +88,26 @@ const styles = StyleSheet.create({
   card: {
     width: 150,
     height: 150,
+    margin: 8,
     alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    padding: 12,
   },
-  icon: {
-    shadowColor: appColors.black,
-    shadowOffset: {
-      width: 0,
-      height: 7,
-    },
-    shadowOpacity: 0.41,
-    shadowRadius: 9.11,
-
-    elevation: 14,
+  iconWrapper: {
+    width: 70,
+    height: 70,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    marginBottom: 10,
+  },
+  image: {
+    width: 46,
+    height: 46,
+  },
+  title: {
+    textAlign: 'center',
+    letterSpacing: 0.2,
   },
 });

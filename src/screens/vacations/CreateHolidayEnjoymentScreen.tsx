@@ -1,33 +1,26 @@
 import React, { useCallback, useEffect } from 'react';
-import {
-  ActivityIndicator,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import { VacationRequest } from '@app-types/VacationRequest';
-import { formatStringDate, VACATION_TYPES } from '@config/constants';
-import { enjoyVacationShema } from '@validations/VacationValidations';
-import { handleOneLevelZodError } from '@utils/converted';
-import { Title } from '@components/pure/Title';
-import { LabelText } from '@components/pure/LabelText';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { format } from 'date-fns';
-import { useForm } from '@hooks/useForm';
-import { InputDateTime } from '@components/input/InputDateTime';
 import { es } from 'date-fns/locale';
-import { OnlineButton } from '@components/button/OnlineButton';
+import { useQuery } from '@tanstack/react-query';
+
+import { LabelText } from '@components/pure/LabelText';
+import { InputDateTime } from '@components/input/InputDateTime';
 import { TouchableButton } from '@components/button/TouchableButton';
 import { ResponseMessage } from '@components/pure/ResponseMessage';
-import { appColors } from '@styles/appColors';
+import { OnlineButton } from '@components/button/OnlineButton';
+import { FormScreen } from '@components/layout/FormScreen';
+import { GlassCard } from '@components/layout/GlassCard';
+import { useTheme } from '@hooks/useTheme';
 import { useVacations } from '@hooks/useVacations';
-import { InputSelect } from '@components/input/InputSelect';
-import {
-  getAllVacationsDays,
-  getVacationDaysByEmployeeCode,
-} from '@services/VacationDaysService';
-import { useQuery } from '@tanstack/react-query';
 import { useErrorsStore } from '@stores/useErrorsStore';
+import { useForm } from '@hooks/useForm';
+
+import { VacationRequest } from '@app-types/VacationRequest';
+import { formatStringDate, VACATION_TYPES } from '@config/constants';
+import { handleOneLevelZodError } from '@utils/converted';
+import { enjoyVacationShema } from '@validations/VacationValidations';
+import { getVacationDaysByEmployeeCode } from '@services/VacationDaysService';
 
 const initialVacationPay: VacationRequest = {
   contributorId: 0,
@@ -39,35 +32,23 @@ const initialVacationPay: VacationRequest = {
 };
 
 export const CreateHolidayEnjoymentScreen = () => {
+  const { colors, fontSize } = useTheme();
   const { setError } = useErrorsStore();
   const { employeeCode, username, sendForm } = useVacations();
 
   const vacationEnjoyValidations = useCallback(
     async (vacation: VacationRequest) => {
       let errors = {};
-
       vacation.employeeCode = Number(employeeCode);
-
       const parce = await enjoyVacationShema.safeParseAsync(vacation);
-
-      if (!parce.success) {
-        errors = handleOneLevelZodError(parce.error);
-      }
-
+      if (!parce.success) errors = handleOneLevelZodError(parce.error);
       return errors;
     },
     [employeeCode],
   );
 
-  const {
-    form,
-    errors,
-    handleChange,
-    handleSubmit,
-    loading,
-    message,
-    success,
-  } = useForm(initialVacationPay, vacationEnjoyValidations, sendForm, true);
+  const { form, errors, handleChange, handleSubmit, loading, message, success } =
+    useForm(initialVacationPay, vacationEnjoyValidations, sendForm, true);
 
   const { data, error, isLoading } = useQuery({
     queryKey: ['holidayPeriods', employeeCode],
@@ -75,113 +56,86 @@ export const CreateHolidayEnjoymentScreen = () => {
   });
 
   useEffect(() => {
-    if (error) {
-      setError(error as any);
-    }
+    if (error) setError(error as any);
   }, [error, setError]);
 
   return (
-    <ScrollView>
-      <Title text="Crear Solicitud" />
-      <LabelText
-        label="Fecha Solicitud"
-        text={format(new Date(), formatStringDate)}
-      />
-      <LabelText label="Código de empleado" text={employeeCode} />
-      <LabelText label="Nombre empleado" text={username} />
-      {isLoading ? (
-        <View>
-          <ActivityIndicator size="large" color={appColors.info} />
-          <Text className="text-gray-700">Cargando datos de vacaciones...</Text>
-        </View>
-      ) : (
-        <>
-          <LabelText
-            label="Dias Disponibles"
-            text={`${data.data.DiasDisponibles.toString()} dias`}
-          />
-        </>
-      )}
-      {/* <View>
-        <Text className="text-black font-bold text-xl mx-5">
-          Seleccionar Periodo
-        </Text>
-        <InputSelect
-          entity="Periodo"
-          textInput={'Selecciona un'}
-          queryKey="holidayPeriods"
-          onSelect={item => {
-            handleChange('period', `${item.initialYear} - ${item.finalYear}`);
-          }}
-          queryFn={() =>
-            getAllVacationsDays({
-              filters: `EmployeeCode:eq:${employeeCode}`,
-              include: '',
-              includeTotal: false,
-              pageNumber: 1,
-              pageSize: 1000,
-            })
-          }
-          selector={data =>
-            `${data.initialYear} - ${data.finalYear} - ${data.days} días`
-          }
-        />
-        <Text className="text-red-700 text-sm px-5">{errors?.period}</Text>
-      </View> */}
-      <InputDateTime
-        label="Fecha Inicio"
-        name="startDate"
-        icon="calendar"
-        mode="date"
-        onChange={handleChange}
-        value={form.startDate}
-        parsedFn={date => format(date, formatStringDate, { locale: es })}
-        errorMessage={errors?.startTime}
-      />
-      <InputDateTime
-        label="Fecha Fin"
-        name="endDate"
-        icon="calendar"
-        mode="date"
-        onChange={handleChange}
-        value={form.endDate}
-        parsedFn={date => format(date, formatStringDate, { locale: es })}
-        errorMessage={errors?.endDate}
-      />
-      <OnlineButton
-        component={
-          <View className="flex items-center my-2">
-            <TouchableButton
-              textClassName="text-xl font-bold text-white"
-              className="rounded-xl"
-              styles={styles.sendButton}
-              icon="send"
-              iconColor="white"
-              title="Enviar"
-              onPress={handleSubmit}
-            />
+    <FormScreen keyboardOffset={56}>
+      <GlassCard style={styles.card} intensity="medium">
+        <LabelText label="Fecha Solicitud" text={format(new Date(), formatStringDate)} />
+        <LabelText label="Código de empleado" text={employeeCode} />
+        <LabelText label="Nombre empleado" text={username} />
 
-            <ResponseMessage
-              message={message}
-              success={success}
-              loading={loading}
-            />
+        {isLoading ? (
+          <View style={styles.loadingRow}>
+            <ActivityIndicator size="small" color={colors.brand.primary} />
+            <Text style={[styles.loadingText, { color: colors.text.secondary, fontSize: fontSize.sm }]}>
+              Cargando datos de vacaciones...
+            </Text>
           </View>
-        }
-        text="para enviar la solicitud"
-      />
-    </ScrollView>
+        ) : (
+          <LabelText
+            label="Días Disponibles"
+            text={`${data?.data?.DiasDisponibles?.toString() ?? '0'} días`}
+          />
+        )}
+
+        <InputDateTime
+          label="Fecha Inicio"
+          name="startDate"
+          icon="calendar-outline"
+          mode="date"
+          onChange={handleChange}
+          value={form.startDate}
+          parsedFn={(date) => format(date, formatStringDate, { locale: es })}
+          errorMessage={errors?.startDate}
+        />
+
+        <InputDateTime
+          label="Fecha Fin"
+          name="endDate"
+          icon="calendar-outline"
+          mode="date"
+          onChange={handleChange}
+          value={form.endDate}
+          parsedFn={(date) => format(date, formatStringDate, { locale: es })}
+          errorMessage={errors?.endDate}
+        />
+
+        <OnlineButton
+          component={
+            <View style={styles.actions}>
+              <TouchableButton
+                variant="primary"
+                title="Enviar solicitud"
+                icon="send-outline"
+                onPress={handleSubmit}
+                loading={loading}
+                fullWidth
+              />
+              <ResponseMessage message={message} success={success} loading={false} />
+            </View>
+          }
+          text="para enviar la solicitud"
+        />
+      </GlassCard>
+    </FormScreen>
   );
 };
 
 const styles = StyleSheet.create({
-  sendButton: {
-    backgroundColor: appColors.primary,
-    padding: 10,
-    borderRadius: 5,
-    margin: 10,
-    width: '75%',
+  card: {
+    width: '100%',
+  },
+  loadingRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    alignItems: 'center',
+    gap: 10,
+    marginVertical: 8,
+  },
+  loadingText: {},
+  actions: {
+    gap: 8,
+    marginTop: 12,
   },
 });

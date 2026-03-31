@@ -1,6 +1,10 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
+
+import { useTheme } from '@hooks/useTheme';
 import { useNetworkStore } from '@stores/useNetworkStore';
-import { Text, View } from 'react-native';
+import { GlassCard } from '@components/layout/GlassCard';
 
 interface OnlineButtonProps {
   component: React.JSX.Element;
@@ -8,14 +12,31 @@ interface OnlineButtonProps {
 }
 
 export const OnlineButton = ({ component, text }: OnlineButtonProps) => {
+  const { colors, fontSize } = useTheme();
   const { isConnected } = useNetworkStore();
-  return isConnected ? (
-    component
-  ) : (
-    <View className="bg-zinc-100 mt-2">
-      <Text className="text-red-700 text-center mt-5 text-2xl">
-        No tienes conexión a internet {text}
+
+  if (isConnected) return component;
+
+  return (
+    <GlassCard style={styles.card} intensity="low">
+      <Icon name="wifi-outline" size={28} color={colors.status.warning} style={styles.icon} />
+      <Text style={[styles.text, { color: colors.text.secondary, fontSize: fontSize.sm }]}>
+        Necesitas conexión a internet {text}
       </Text>
-    </View>
+    </GlassCard>
   );
 };
+
+const styles = StyleSheet.create({
+  card: {
+    alignItems: 'center',
+    marginVertical: 8,
+  },
+  icon: {
+    marginBottom: 6,
+  },
+  text: {
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+});

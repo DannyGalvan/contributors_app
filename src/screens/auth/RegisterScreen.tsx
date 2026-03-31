@@ -1,21 +1,22 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+
 import { Logo } from '@components/Icons/Logo';
-import { UserRequest } from '@app-types/UserRequest';
-import { ErrorObject, useForm } from '@hooks/useForm';
-import { UserShema } from '@validations/UserValidations';
-import { dispatchAlert, handleOneLevelZodError } from '@utils/converted';
-import { UserResponse } from '@app-types/UserResponse';
-import { createUser } from '@services/userService';
 import { InputForm } from '@components/input/InputForm';
-import { appColors } from '@styles/appColors';
-import { appStyles } from '@styles/appStyles';
 import { TouchableButton } from '@components/button/TouchableButton';
 import { ResponseMessage } from '@components/pure/ResponseMessage';
-import { ScrollView } from 'react-native-gesture-handler';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { FormScreen } from '@components/layout/FormScreen';
+import { GlassCard } from '@components/layout/GlassCard';
+import { useTheme } from '@hooks/useTheme';
+import { ErrorObject, useForm } from '@hooks/useForm';
+
+import { UserRequest } from '@app-types/UserRequest';
+import { UserResponse } from '@app-types/UserResponse';
 import { AuthParamList } from '@app-types/IAuthNavigator';
-import { Title } from '@components/pure/Title';
+import { UserShema } from '@validations/UserValidations';
+import { dispatchAlert, handleOneLevelZodError } from '@utils/converted';
+import { createUser } from '@services/userService';
 
 const initialRegister: UserRequest = {
   email: '',
@@ -29,171 +30,156 @@ const initialRegister: UserRequest = {
 
 const registerValidations = (form: UserRequest) => {
   let errors: ErrorObject = {};
-
   const parce = UserShema.safeParse(form);
-
   if (!parce.success) errors = handleOneLevelZodError(parce.error);
-
   return errors;
 };
 
 export const RegisterScreen = () => {
   const { navigate } = useNavigation<NavigationProp<AuthParamList>>();
+  const { colors, fontSize, fontWeight } = useTheme();
+
   const sendForm = async (form: UserRequest) => {
     const response = await createUser(form);
-
     dispatchAlert({
       title: 'Mensaje',
-      message: !response.success
-        ? response.message
-        : 'Usuario creado con exito',
-      fn: () => {
-        if (response.success) navigate('Login');
-      },
+      message: !response.success ? response.message : 'Usuario creado con exito',
+      fn: () => { if (response.success) navigate('Login'); },
     });
-
     return response;
   };
 
-  const {
-    form,
-    handleChange,
-    handleSubmit,
-    errors,
-    loading,
-    message,
-    success,
-  } = useForm<UserRequest, UserResponse>(
-    initialRegister,
-    registerValidations,
-    sendForm,
-    true,
-  );
+  const { form, handleChange, handleSubmit, errors, loading, message, success } =
+    useForm<UserRequest, UserResponse>(initialRegister, registerValidations, sendForm, true);
 
   return (
-    <ScrollView contentContainerStyle={styles.screen} scrollEnabled>
-      <Title text="Registro de Usuario" />
-
-      <View style={styles.containerLogo}>
+    // keyboardOffset=56 accounts for the back-button header on Android
+    <FormScreen keyboardOffset={56} contentStyle={styles.content}>
+      <View style={styles.logoContainer}>
         <Logo isVisible={false} style={styles.logo} />
       </View>
 
-      <InputForm
-        containerStyles={styles.input}
-        name="email"
-        errorMessage={errors?.email}
-        colorText={appStyles.textDark}
-        placeholderTextColor={appColors.gray}
-        colorInput={appStyles.inputLight}
-        label="Correo Electrónico"
-        value={form.email}
-        onChangeText={(text: string) => handleChange('email', text)}
-        placeholder="Ingrese su correo electrónico"
-        secureTextEntry={false}
-        icon="mail"
-        iconColor={appColors.sky}
-      />
+      <Text style={[styles.title, { color: colors.text.inverse, fontSize: fontSize['2xl'], fontWeight: fontWeight.bold }]}>
+        Registro de Usuario
+      </Text>
+      <Text style={[styles.subtitle, { color: colors.text.inverseSecondary, fontSize: fontSize.sm }]}>
+        Completa tus datos para crear una cuenta
+      </Text>
 
-      <InputForm
-        containerStyles={styles.input}
-        name="password"
-        errorMessage={errors?.password}
-        colorText={appStyles.textDark}
-        placeholderTextColor={appColors.gray}
-        colorInput={appStyles.inputLight}
-        label="Contraseña"
-        value={form.password}
-        onChangeText={(text: string) => handleChange('password', text)}
-        placeholder="Ingrese su contraseña"
-        secureTextEntry={true}
-        icon="eye"
-        iconColor={appColors.sky}
-      />
+      <GlassCard style={styles.card} intensity="medium">
+        <InputForm
+          name="email"
+          label="Correo Electrónico"
+          placeholder="Ingrese su correo electrónico"
+          value={form.email}
+          onChangeText={(text) => handleChange('email', text)}
+          errorMessage={errors?.email}
+          secureTextEntry={false}
+          icon="mail-outline"
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+        <InputForm
+          name="dpi"
+          label="DPI"
+          placeholder="Ingrese su DPI"
+          value={form.dpi}
+          onChangeText={(text) => handleChange('dpi', text)}
+          errorMessage={errors?.dpi}
+          secureTextEntry={false}
+          icon="card-outline"
+          keyboardType="numeric"
+        />
+        <InputForm
+          name="number"
+          label="Número de teléfono"
+          placeholder="Ingrese su número de teléfono"
+          value={form.number}
+          onChangeText={(text) => handleChange('number', text)}
+          errorMessage={errors?.number}
+          secureTextEntry={false}
+          icon="call-outline"
+          keyboardType="phone-pad"
+        />
+        <InputForm
+          name="password"
+          label="Contraseña"
+          placeholder="Ingrese su contraseña"
+          value={form.password}
+          onChangeText={(text) => handleChange('password', text)}
+          errorMessage={errors?.password}
+          secureTextEntry={true}
+          icon="eye-outline"
+        />
+        <InputForm
+          name="confirm"
+          label="Confirmar Contraseña"
+          placeholder="Confirme su contraseña"
+          value={form.confirm}
+          onChangeText={(text) => handleChange('confirm', text)}
+          errorMessage={errors?.confirm}
+          secureTextEntry={true}
+          icon="eye-outline"
+        />
 
-      <InputForm
-        containerStyles={styles.input}
-        name="confirm"
-        errorMessage={errors?.confirm}
-        colorText={appStyles.textDark}
-        placeholderTextColor={appColors.gray}
-        colorInput={appStyles.inputLight}
-        label="Confirmar Contraseña"
-        value={form.confirm}
-        onChangeText={(text: string) => handleChange('confirm', text)}
-        placeholder="Confirme su contraseña"
-        secureTextEntry={true}
-        icon="eye"
-        iconColor={appColors.sky}
-      />
+        <TouchableButton
+          variant="cta"
+          title="Registrarse"
+          icon="person-add-outline"
+          onPress={handleSubmit}
+          loading={loading}
+          fullWidth
+          styles={styles.btn}
+        />
 
-      <InputForm
-        containerStyles={styles.input}
-        name="dpi"
-        errorMessage={errors?.dpi}
-        colorText={appStyles.textDark}
-        placeholderTextColor={appColors.gray}
-        colorInput={appStyles.inputLight}
-        label="DPI"
-        value={form.dpi}
-        onChangeText={(text: string) => handleChange('dpi', text)}
-        placeholder="Ingrese su DPI"
-        secureTextEntry={false}
-        icon="card"
-        iconColor={appColors.sky}
-      />
+        <ResponseMessage message={message} success={success} loading={false} />
+      </GlassCard>
 
-      <InputForm
-        containerStyles={styles.input}
-        name="number"
-        errorMessage={errors?.number}
-        colorText={appStyles.textDark}
-        placeholderTextColor={appColors.gray}
-        colorInput={appStyles.inputLight}
-        label="Número de teléfono"
-        value={form.number}
-        onChangeText={(text: string) => handleChange('number', text)}
-        placeholder="Ingrese su número de teléfono"
-        secureTextEntry={false}
-        icon="call"
-        iconColor={appColors.sky}
-      />
-
-      <TouchableButton
-        styles={styles.button}
-        textClassName="text-lg text-white font-bold"
-        onPress={handleSubmit}
-        title="Registrarse"
-        icon="person-add"
-      />
-
-      <ResponseMessage message={message} success={success} loading={loading} />
-    </ScrollView>
+      <Text
+        style={[styles.link, { color: colors.text.inverseSecondary, fontSize: fontSize.sm }]}
+        onPress={() => navigate('Login')}
+      >
+        ¿Ya tienes cuenta?{' '}
+        <Text style={{ fontWeight: fontWeight.bold, color: colors.brand.cta }}>
+          Iniciar sesión
+        </Text>
+      </Text>
+    </FormScreen>
   );
 };
 
 const styles = StyleSheet.create({
-  screen: {
+  content: {
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  button: {
-    backgroundColor: appColors.warning,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
+  logoContainer: {
+    marginBottom: 14,
     alignItems: 'center',
-    justifyContent: 'space-around',
-    flexDirection: 'row',
-    width: '60%',
-  },
-  input: {
-    width: '80%',
-    marginVertical: 10,
-  },
-  containerLogo: {
-    margin: 20,
   },
   logo: {
-    width: 100,
-    height: 100,
+    width: 80,
+    height: 80,
+    borderRadius: 16,
+  },
+  title: {
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  subtitle: {
+    textAlign: 'center',
+    marginBottom: 20,
+    letterSpacing: 0.3,
+  },
+  card: {
+    width: '100%',
+    marginBottom: 20,
+  },
+  btn: {
+    marginTop: 12,
+  },
+  link: {
+    textAlign: 'center',
+    letterSpacing: 0.2,
   },
 });

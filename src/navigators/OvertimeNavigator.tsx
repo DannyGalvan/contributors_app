@@ -1,23 +1,28 @@
 import React from 'react';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { OvertimeStackParamList } from '@app-types/IOvertimeNavigator';
-import { CreateOvertimeScreen } from '@screens/overtime/CreateOvertimeScreen';
-import { OvertimeScreen } from '@screens/overtime/OvertimeScreen';
-import { StyleSheet } from 'react-native';
-import { TouchableButton } from '@components/button/TouchableButton';
-import { appColors } from '@styles/appColors';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Ionicons';
+
+import { OvertimeScreen } from '@screens/overtime/OvertimeScreen';
+import { CreateOvertimeScreen } from '@screens/overtime/CreateOvertimeScreen';
+import { useTheme } from '@hooks/useTheme';
+import { OvertimeStackParamList } from '@app-types/IOvertimeNavigator';
 
 const Stack = createStackNavigator<OvertimeStackParamList>();
 
 export const OvertimeNavigator = () => {
+  const { colors, fontWeight } = useTheme();
   const { navigate } = useNavigation<NavigationProp<OvertimeStackParamList>>();
+
   return (
     <Stack.Navigator
       id="overtimeNavigator"
       initialRouteName="HorasExtras"
       screenOptions={{
-        headerShown: true,
+        headerStyle: { backgroundColor: colors.brand.primary },
+        headerTintColor: colors.text.inverse,
+        headerTitleStyle: { fontWeight: fontWeight.bold },
       }}
     >
       <Stack.Screen
@@ -26,26 +31,24 @@ export const OvertimeNavigator = () => {
         options={{
           title: 'Horas Extras',
           headerRight: () => (
-            <TouchableButton
-              onPress={() => navigate('Crear')}
-              title=""
-              icon="time"
-              styles={styles.buttonRight}
-              iconColor={appColors.white}
-            />
+            <TouchableOpacity style={styles.addBtn} onPress={() => navigate('Crear')}>
+              <Icon name="add" size={24} color={colors.text.inverse} />
+            </TouchableOpacity>
           ),
         }}
       />
-      <Stack.Screen name="Crear" component={CreateOvertimeScreen} />
+      <Stack.Screen
+        name="Crear"
+        component={CreateOvertimeScreen}
+        options={{ title: 'Nueva Hora Extra' }}
+      />
     </Stack.Navigator>
   );
 };
 
 const styles = StyleSheet.create({
-  buttonRight: {
-    marginRight: 15,
-    backgroundColor: appColors.success,
-    borderRadius: 40,
-    padding: 5,
+  addBtn: {
+    marginRight: 16,
+    padding: 4,
   },
 });

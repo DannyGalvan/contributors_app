@@ -39,6 +39,7 @@ module.exports = function (api) {
             '@database': './src/database',
             '@validations': './src/validations',
             '@observables': './src/observables',
+            '@theme': './src/theme',
           },
         },
       ],

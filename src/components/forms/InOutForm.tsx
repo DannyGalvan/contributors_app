@@ -1,19 +1,22 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+
 import { InputSelect } from '@components/input/InputSelect';
 import { SelectValues } from '@components/input/SelectValues';
-import { IN_OUT_VALUES } from '@config/constants';
-import { appColors } from '@styles/appColors';
 import { TouchableButton } from '@components/button/TouchableButton';
+import { LabelText } from '@components/pure/LabelText';
+import { ResponseMessage } from '@components/pure/ResponseMessage';
+import { GlassCard } from '@components/layout/GlassCard';
+import { Map } from '@components/maps/Map';
+import { useTheme } from '@hooks/useTheme';
 import { ErrorObject, useForm } from '@hooks/useForm';
+import { useInOut } from '@hooks/useInOut';
+
+import { IN_OUT_VALUES } from '@config/constants';
 import { inOutShemaOmit } from '@validations/InOutValidations';
 import { handleOneLevelZodError } from '@utils/converted';
 import { InOutRequest } from '@app-types/InOutRequest';
-import { useInOut } from '@hooks/useInOut';
-import { LabelText } from '@components/pure/LabelText';
 import { getLocationByEmployeeCode } from '@services/locationService';
-import { ResponseMessage } from '@components/pure/ResponseMessage';
-import { Map } from '@components/maps/Map';
 
 const initialInOut: InOutRequest = {
   businessId: 0,
@@ -28,17 +31,13 @@ const initialInOut: InOutRequest = {
 
 const inOutValidations = (form: InOutRequest) => {
   let errors: ErrorObject = {};
-
   const parce = inOutShemaOmit.safeParse(form);
-
-  if (!parce.success) {
-    errors = handleOneLevelZodError(parce.error);
-  }
-
+  if (!parce.success) errors = handleOneLevelZodError(parce.error);
   return errors;
 };
 
 export const InOutForm = () => {
+  const { colors, fontSize, fontWeight } = useTheme();
   const { employeeCode, sendForm, username, setLocation } = useInOut();
 
   const { errors, handleChange, handleSubmit, loading, message, success } =
@@ -46,87 +45,161 @@ export const InOutForm = () => {
 
   return (
     <>
-      <LabelText label="Código de empleado" text={employeeCode} />
-      <LabelText label="Nombre empleado" text={username} />
-      <View>
-        <Text className="text-black font-bold text-xl mx-5">
-          Seleccionar ubicación
-        </Text>
-        <InputSelect
-          entity="ubicación"
-          textInput={'Selecciona una'}
-          queryKey="locations"
-          onSelect={item => {
-            handleChange('locationId', item.id);
-            setLocation(item);
-          }}
-          queryFn={() =>
-            getLocationByEmployeeCode({
-              filters: `EmployeeCode:eq:${employeeCode} AND Center.State:eq:1`,
-              include: 'location',
-              includeTotal: false,
-              pageNumber: 1,
-              pageSize: 10,
-            })
-          }
-          selector={data => data.location.description}
-        />
-        <Text className="text-red-700 text-sm px-5">{errors?.locationId}</Text>
-      </View>
-      <View>
-        <Text className="text-black font-bold text-xl mx-5">
-          Seleccionar Entrada o Salida
-        </Text>
-        <SelectValues
-          entity="entrada/salida"
-          textInput="Selecciona una"
-          data={IN_OUT_VALUES}
-          onSelect={item => handleChange('type', item.value)}
-          selector={data => data.label}
-        />
-        <Text className="text-red-700 text-sm px-5">{errors?.type}</Text>
-      </View>
-      <View className="flex items-center my-2">
+      <GlassCard style={styles.infoCard} intensity="low">
+        <LabelText label="Código de empleado" text={employeeCode} />
+        <LabelText label="Nombre empleado" text={username} />
+      </GlassCard>
+
+      <GlassCard style={styles.formCard} intensity="medium">
+        <View style={styles.field}>
+          <Text
+            style={[
+              styles.fieldLabel,
+              {
+                color: colors.text.primary,
+                fontSize: fontSize.sm,
+                fontWeight: fontWeight.semibold,
+              },
+            ]}
+          >
+            Ubicación
+          </Text>
+          <InputSelect
+            entity="ubicación"
+            textInput="Selecciona una"
+            queryKey="locations"
+            onSelect={item => {
+              handleChange('locationId', item.id);
+              setLocation(item);
+            }}
+            queryFn={() =>
+              getLocationByEmployeeCode({
+                filters: `EmployeeCode:eq:${employeeCode} AND Center.State:eq:1`,
+                include: 'location',
+                includeTotal: false,
+                pageNumber: 1,
+                pageSize: 10,
+              })
+            }
+            selector={data => data.location.description}
+          />
+          {errors?.locationId ? (
+            <Text
+              style={[
+                styles.errorText,
+                { color: colors.text.error, fontSize: fontSize.xs },
+              ]}
+            >
+              {errors.locationId}
+            </Text>
+          ) : null}
+        </View>
+
+        <View style={styles.field}>
+          <Text
+            style={[
+              styles.fieldLabel,
+              {
+                color: colors.text.primary,
+                fontSize: fontSize.sm,
+                fontWeight: fontWeight.semibold,
+              },
+            ]}
+          >
+            Entrada o Salida
+          </Text>
+          <SelectValues
+            entity="entrada/salida"
+            textInput="Selecciona una"
+            data={IN_OUT_VALUES}
+            onSelect={item => handleChange('type', item.value)}
+            selector={data => data.label}
+          />
+          {errors?.type ? (
+            <Text
+              style={[
+                styles.errorText,
+                { color: colors.text.error, fontSize: fontSize.xs },
+              ]}
+            >
+              {errors.type}
+            </Text>
+          ) : null}
+        </View>
+
         <TouchableButton
-          textClassName="text-xl font-bold text-white"
-          className="rounded-xl"
-          styles={styles.sendButton}
-          icon="send"
-          iconColor="white"
+          variant="primary"
           title="Marcar"
+          icon="finger-print-outline"
           onPress={handleSubmit}
+          loading={loading}
+          fullWidth
+          styles={styles.btn}
         />
 
-        <ResponseMessage
-          message={message}
-          success={success}
-          loading={loading}
-        />
-      </View>
-      <View className="mx-5 h-72 border-2">
-        <Text className="font-bold text-xl text-center text-black">
-          Ubicacion Actual:
+        <ResponseMessage message={message} success={success} loading={false} />
+      </GlassCard>
+
+      <GlassCard style={styles.mapCard} intensity="low">
+        <Text
+          style={[
+            styles.mapTitle,
+            {
+              color: colors.text.primary,
+              fontSize: fontSize.sm,
+              fontWeight: fontWeight.semibold,
+            },
+          ]}
+        >
+          Ubicación actual
         </Text>
-        <Map mapStyles={styles.map} />
-      </View>
+        <View style={styles.mapContainer}>
+          <Map mapStyles={styles.map} />
+        </View>
+      </GlassCard>
     </>
   );
 };
 
 const styles = StyleSheet.create({
-  sendButton: {
-    backgroundColor: appColors.primary,
-    padding: 10,
-    borderRadius: 5,
-    margin: 10,
-    width: '75%',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+  infoCard: {
+    marginHorizontal: 16,
+    marginBottom: 8,
+    marginTop: 8,
+  },
+  formCard: {
+    marginHorizontal: 16,
+    marginBottom: 8,
+  },
+  field: {
+    marginBottom: 8,
+  },
+  fieldLabel: {
+    marginBottom: 6,
+    letterSpacing: 0.3,
+  },
+  errorText: {
+    marginTop: 4,
+    marginLeft: 4,
+  },
+  btn: {
+    marginTop: 8,
+  },
+  mapCard: {
+    marginHorizontal: 16,
+    marginBottom: 40,
+  },
+  mapTitle: {
+    marginBottom: 10,
+    letterSpacing: 0.3,
+  },
+  mapContainer: {
+    height: 220,
+    borderRadius: 12,
+    overflow: 'hidden',
   },
   map: {
     width: '100%',
-    height: '85%',
-    position: 'relative',
-    zIndex: -1,
+    height: '100%',
   },
 });

@@ -1,41 +1,47 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { VacationsStackParamList } from '@app-types/IVacationsNavigator';
+
 import { VacationsScreen } from '@screens/vacations/VacationsScreen';
 import { SelectVacationOptions } from '@screens/vacations/SelectVacationOptions';
 import { CreateHolidayEnjoymentScreen } from '@screens/vacations/CreateHolidayEnjoymentScreen';
 import { CreateVacationPayScreen } from '@screens/vacations/CreateVacationPayScreen';
+import { useTheme } from '@hooks/useTheme';
+import { VacationsStackParamList } from '@app-types/IVacationsNavigator';
 
 const Stack = createStackNavigator<VacationsStackParamList>();
 
 export const VacationsNavigator = () => {
+  const { colors, fontWeight } = useTheme();
+
   return (
     <Stack.Navigator
       id="vacationsNavigator"
       initialRouteName="SelectVacationPay"
       screenOptions={{
-        headerShown: true,
+        headerStyle: { backgroundColor: colors.brand.primary },
+        headerTintColor: colors.text.inverse,
+        headerTitleStyle: { fontWeight: fontWeight.bold },
       }}
     >
       <Stack.Screen
-        name="ListVacations"
-        options={{ title: 'Lista de Vacaciones' }}
-        component={VacationsScreen}
+        name="SelectVacationPay"
+        component={SelectVacationOptions}
+        options={{ title: 'Vacaciones' }}
       />
       <Stack.Screen
-        name="SelectVacationPay"
-        options={{ title: 'Opciones' }}
-        component={SelectVacationOptions}
+        name="ListVacations"
+        component={VacationsScreen}
+        options={{ title: 'Mis Vacaciones' }}
       />
       <Stack.Screen
         name="EnjoyVacations"
-        options={{ title: 'Goce de Vacaciones' }}
         component={CreateHolidayEnjoymentScreen}
+        options={{ title: 'Goce de Vacaciones' }}
       />
       <Stack.Screen
         name="VacationPay"
-        options={{ title: 'Pago vacaciones' }}
         component={CreateVacationPayScreen}
+        options={{ title: 'Pago de Vacaciones' }}
       />
     </Stack.Navigator>
   );

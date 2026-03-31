@@ -1,8 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import SelectDropdown from 'react-native-select-dropdown';
-import { appColors } from '@styles/appColors';
 import Icon from 'react-native-vector-icons/Ionicons';
+
+import { useTheme } from '@hooks/useTheme';
 import { onSearchUpdate } from '@observables/searchObservable';
 
 interface SelectValuesProps<T> {
@@ -20,60 +21,124 @@ export const SelectValues = <T extends Object>({
   textInput,
   data,
 }: SelectValuesProps<T>) => {
+  const { colors, fontSize, radius, fontWeight } = useTheme();
   const ref = useRef<SelectDropdown>(null);
 
   useEffect(() => {
-    const subscription = onSearchUpdate(entity).subscribe((event) => {
+    const subscription = onSearchUpdate(entity).subscribe(event => {
       event.value == '' && ref.current.reset();
     });
-
     return () => {
       subscription.unsubscribe();
     };
   }, []);
 
   return (
-    <View className="flex flex-column items-center justify-center px-1">
+    <View style={styles.wrapper}>
       <SelectDropdown
         ref={ref}
-        searchInputStyle={{ width: '100%' }}
+        searchInputStyle={[
+          styles.searchInput,
+          {
+            backgroundColor: colors.surface.input,
+            borderColor: colors.border.inputFocused,
+            borderRadius: radius.md,
+          },
+        ]}
+        searchInputTxtColor={colors.text.primary}
         data={data ?? []}
         onSelect={onSelect}
-        renderButton={(selectedItem, isOpened) => {
-          return (
-            <View style={styles.dropdownButtonStyle}>
-              {selectedItem && (
-                <Icon
-                  name={selectedItem.icon}
-                  style={styles.dropdownButtonIconStyle}
-                />
-              )}
-              <Text style={styles.dropdownButtonTxtStyle}>
-                {(selectedItem && selector(selectedItem)) ||
-                  `${textInput} ${entity}`}
-              </Text>
+        renderButton={(selectedItem, isOpened) => (
+          <View
+            style={[
+              styles.button,
+              {
+                backgroundColor: colors.surface.input,
+                borderColor: isOpened
+                  ? colors.border.inputFocused
+                  : colors.border.input,
+                borderRadius: radius.md,
+              },
+            ]}
+          >
+            {selectedItem && (
               <Icon
-                name={isOpened ? 'chevron-up' : 'chevron-down'}
-                style={styles.dropdownButtonArrowStyle}
+                name={selectedItem.icon}
+                size={20}
+                color={colors.icon.primary}
+                style={styles.leadIcon}
               />
-            </View>
-          );
-        }}
-        renderItem={(item, index, isSelected) => {
-          return (
-            <View
-              style={{
-                ...styles.dropdownItemStyle,
-                ...(isSelected && { backgroundColor: '#D2D9DF' }),
-              }}
+            )}
+            <Text
+              style={[
+                styles.buttonText,
+                {
+                  color: selectedItem ? colors.text.primary : colors.text.muted,
+                  fontSize: fontSize.base,
+                },
+              ]}
+              numberOfLines={1}
             >
-              <Icon name={'add-circle'} style={styles.dropdownItemIconStyle} />
-              <Text style={styles.dropdownItemTxtStyle}>{selector(item)}</Text>
-            </View>
-          );
+              {(selectedItem && selector(selectedItem)) ||
+                `${textInput} ${entity}`}
+            </Text>
+            <Icon
+              name={isOpened ? 'chevron-up' : 'chevron-down'}
+              size={18}
+              color={colors.icon.secondary}
+            />
+          </View>
+        )}
+        renderSearchInputRightIcon={() => (
+          <Icon
+            name="search"
+            size={16}
+            color={colors.icon.secondary}
+            style={{ marginRight: 8 }}
+          />
+        )}
+        renderItem={(item, _index, isSelected) => (
+          <View
+            style={[
+              styles.item,
+              {
+                backgroundColor: isSelected
+                  ? colors.surface.glassMd
+                  : colors.surface.glassLg,
+              },
+            ]}
+          >
+            <Text
+              style={[
+                styles.itemText,
+                {
+                  color: isSelected
+                    ? colors.brand.primary
+                    : colors.text.primary,
+                  fontSize: fontSize.base,
+                  fontWeight: isSelected
+                    ? fontWeight.medium
+                    : fontWeight.regular,
+                },
+              ]}
+            >
+              {selector(item)}
+            </Text>
+            {isSelected && (
+              <Icon name="checkmark" size={16} color={colors.brand.primary} />
+            )}
+          </View>
+        )}
+        showsVerticalScrollIndicator={false}
+        searchPlaceHolderColor={colors.text.muted}
+        dropdownStyle={{
+          backgroundColor: colors.surface.elevated,
+          borderRadius: radius.md,
+          borderColor: colors.border.glassStrong,
+          borderWidth: 1,
+          marginTop: 0,
+          elevation: 4,
         }}
-        showsVerticalScrollIndicator={true}
-        dropdownStyle={styles.dropdownMenuStyle}
         search
         searchPlaceHolder={`Buscar ${entity}`}
       />
@@ -82,53 +147,38 @@ export const SelectValues = <T extends Object>({
 };
 
 const styles = StyleSheet.create({
-  dropdownButtonStyle: {
-    width: '90%',
-    height: 45,
-    backgroundColor: '#E9ECEF',
-    borderRadius: 12,
+  wrapper: {
+    paddingHorizontal: 4,
+    marginBottom: 4,
+  },
+  button: {
+    height: 48,
     flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
+    borderWidth: 1,
   },
-  dropdownButtonTxtStyle: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: '500',
-    color: '#151E26',
-  },
-  dropdownButtonArrowStyle: {
-    fontSize: 28,
-  },
-  dropdownButtonIconStyle: {
-    fontSize: 28,
+  leadIcon: {
     marginRight: 8,
   },
-  dropdownMenuStyle: {
-    backgroundColor: '#E9ECEF',
-    marginTop: -30,
-    borderRadius: 8,
+  buttonText: {
+    flex: 1,
   },
-  dropdownItemStyle: {
+  item: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  itemText: {
+    flex: 1,
+  },
+  searchInput: {
     width: '100%',
-    flexDirection: 'row',
+    borderWidth: 1,
+    borderRadius: 8,
     paddingHorizontal: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
     paddingVertical: 8,
-  },
-  dropdownItemTxtStyle: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: '500',
-    color: '#151E26',
-  },
-  dropdownItemIconStyle: {
-    fontSize: 28,
-    marginRight: 8,
-  },
-  refreshButton: {
-    backgroundColor: appColors.primary,
+    marginVertical: 0,
   },
 });
