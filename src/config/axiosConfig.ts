@@ -20,7 +20,7 @@ export const marksApi = axios.create({
 });
 
 // Request interceptor: track retry attempts
-marksApi.interceptors.request.use((config) => {
+marksApi.interceptors.request.use(config => {
   // Initialize retry count if not exists
   if (!retryCountMap.has(config)) {
     retryCountMap.set(config, 0);
@@ -30,7 +30,7 @@ marksApi.interceptors.request.use((config) => {
 
 // Response interceptor: handle errors with retry logic
 marksApi.interceptors.response.use(
-  async (response) => {
+  async response => {
     return response.data;
   },
   async (error: AxiosError) => {
@@ -51,14 +51,14 @@ marksApi.interceptors.response.use(
       if (isNetwork && shouldRetry(error, retryCount)) {
         retryCountMap.set(config, retryCount + 1);
         const delay = getBackoffDelay(retryCount);
-        await new Promise((resolve) => setTimeout(resolve, delay));
+        await new Promise<void>(resolve => setTimeout(() => resolve(), delay));
         return marksApi(config);
       }
 
       // If network error and no retry, throw descriptive error
       if (isNetwork) {
         throw new Error(
-          'Problemas de conexión. Verifica tu conexión a internet e intenta de nuevo.'
+          'Problemas de conexión. Verifica tu conexión a internet e intenta de nuevo.',
         );
       }
 
@@ -72,13 +72,13 @@ marksApi.interceptors.response.use(
 
     if (response.status === 401) {
       throw new UnauthorizedError(
-        'Tu sesión ha expirado vuelve a iniciar sesión'
+        'Tu sesión ha expirado vuelve a iniciar sesión',
       );
     }
 
     if (response.status === 403) {
       throw new ForbiddenError(
-        'No tienes permisos para realizar esta acción, contacta con el administrador'
+        'No tienes permisos para realizar esta acción, contacta con el administrador',
       );
     }
 
@@ -88,21 +88,23 @@ marksApi.interceptors.response.use(
       if (shouldRetry(error, retryCount)) {
         retryCountMap.set(config, retryCount + 1);
         const delay = getBackoffDelay(retryCount);
-        await new Promise((resolve) => setTimeout(resolve, delay));
+        await new Promise<void>(resolve => setTimeout(() => resolve(), delay));
         return marksApi(config);
       }
-      throw new Error('El servidor está temporalmente no disponible. Intenta más tarde.');
+      throw new Error(
+        'El servidor está temporalmente no disponible. Intenta más tarde.',
+      );
     }
 
     if (response.status === 500) {
       throw new Error(
-        'Hubo un error en el servidor, contacta al desarrollador'
+        'Hubo un error en el servidor, contacta al desarrollador',
       );
     }
 
     // Generic error for unhandled status codes
     throw error;
-  }
+  },
 );
 
 export const setAuthorizationHeader = (token: string) => {

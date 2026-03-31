@@ -138,7 +138,7 @@ export const CreateOvertimeScreen = () => {
               handleChange('locationId', item.Id);
               setLocationString(item.location);
             }}
-            onRefresh={updateLocations}
+            onRefresh={() => updateLocations()}
             queryFn={() => getAllLocationStores()}
             selector={data => data.location}
           />
