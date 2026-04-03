@@ -74,6 +74,32 @@ export const InputSelect = <T extends Object>({
     );
   }
 
+  // Show error state with retry option
+  if (error && !isPending) {
+    return (
+      <View style={styles.emptyRow}>
+        <Text
+          style={[
+            styles.emptyText,
+            { color: colors.text.error, fontSize: fontSize.sm },
+          ]}
+        >
+          Error al cargar {entity}
+        </Text>
+        <TouchableButton
+          variant="primary"
+          icon="refresh"
+          iconSize={18}
+          styles={styles.refreshBtn}
+          onPress={() => {
+            refetch();
+            onRefresh?.();
+          }}
+        />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.row}>
       {isPending ? (
@@ -138,41 +164,58 @@ export const InputSelect = <T extends Object>({
                 />
               </View>
             )}
-            renderItem={(item, _index, isSelected) => (
-              <View
-                style={[
-                  styles.dropItem,
-                  {
-                    backgroundColor: isSelected
-                      ? colors.surface.glassMd
-                      : colors.surface.glassLg,
-                  },
-                ]}
-              >
-                <Icon
-                  name="checkmark-circle"
-                  size={16}
-                  color={isSelected ? colors.brand.primary : 'transparent'}
-                  style={styles.dropItemIcon}
-                />
-                <Text
-                  style={[
-                    styles.dropItemText,
-                    {
-                      color: isSelected
-                        ? colors.brand.primary
-                        : colors.text.primary,
-                      fontSize: fontSize.base,
-                      fontWeight: isSelected
-                        ? fontWeight.medium
-                        : fontWeight.regular,
-                    },
-                  ]}
-                >
-                  {selector(item)}
-                </Text>
-              </View>
-            )}
+            renderItem={(item, _index, isSelected) => {
+              try {
+                return (
+                  <View
+                    style={[
+                      styles.dropItem,
+                      {
+                        backgroundColor: isSelected
+                          ? colors.surface.glassMd
+                          : colors.surface.glassLg,
+                      },
+                    ]}
+                  >
+                    <Icon
+                      name="checkmark-circle"
+                      size={16}
+                      color={isSelected ? colors.brand.primary : 'transparent'}
+                      style={styles.dropItemIcon}
+                    />
+                    <Text
+                      style={[
+                        styles.dropItemText,
+                        {
+                          color: isSelected
+                            ? colors.brand.primary
+                            : colors.text.primary,
+                          fontSize: fontSize.base,
+                          fontWeight: isSelected
+                            ? fontWeight.medium
+                            : fontWeight.regular,
+                        },
+                      ]}
+                    >
+                      {selector(item) || 'Sin información'}
+                    </Text>
+                  </View>
+                );
+              } catch (err) {
+                return (
+                  <View style={styles.dropItem}>
+                    <Text
+                      style={[
+                        styles.dropItemText,
+                        { color: colors.text.error, fontSize: fontSize.base },
+                      ]}
+                    >
+                      Error: Datos incompletos
+                    </Text>
+                  </View>
+                );
+              }
+            }}
             showsVerticalScrollIndicator={false}
             dropdownStyle={{
               backgroundColor: colors.surface.elevated,

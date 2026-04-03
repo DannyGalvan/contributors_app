@@ -18,6 +18,32 @@ export const useInOut = () => {
   const [location, setLocation] = useState<PermitterMarks>(null);
 
   const sendForm = async (form: InOutRequest) => {
+    // Validate location is selected and has required data
+    if (!location || !location.location) {
+      Alert.alert(
+        'Error',
+        'Debes seleccionar una ubicación válida para continuar'
+      );
+      return {
+        success: false,
+        message: 'Ubicación no seleccionada',
+        data: [],
+      };
+    }
+
+    // Validate current location exists
+    if (!currentUserLocation) {
+      Alert.alert(
+        'Error',
+        'No se pudo obtener tu ubicación actual. Intenta nuevamente.'
+      );
+      return {
+        success: false,
+        message: 'Ubicación actual no disponible',
+        data: [],
+      };
+    }
+
     form.businessId = companyCode;
     form.contributorId = idUser;
     form.latitude = currentUserLocation.latitude.toString();

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { InputSelect } from '@components/input/InputSelect';
@@ -38,10 +38,21 @@ const inOutValidations = (form: InOutRequest) => {
 
 export const InOutForm = () => {
   const { colors, fontSize, fontWeight } = useTheme();
-  const { employeeCode, sendForm, username, setLocation } = useInOut();
+  const { employeeCode, sendForm, username, setLocation, location } = useInOut();
+  const refreshKey = useRef(0);
 
   const { errors, handleChange, handleSubmit, loading, message, success } =
     useForm(initialInOut, inOutValidations, sendForm, true);
+
+  // Determine if submit button should be disabled
+  const isSubmitDisabled = useMemo(() => {
+    return !location || !location.location;
+  }, [location]);
+
+  // Handle location refresh
+  const handleLocationRefresh = () => {
+    refreshKey.current += 1;
+  };
 
   return (
     <>
@@ -67,11 +78,14 @@ export const InOutForm = () => {
           <InputSelect
             entity="ubicación"
             textInput="Selecciona una"
-            queryKey="locations"
+            queryKey={`locations-${employeeCode}-${refreshKey.current}`}
             onSelect={item => {
-              handleChange('locationId', item.id);
-              setLocation(item);
+              if (item?.id && item?.location) {
+                handleChange('locationId', item.id);
+                setLocation(item);
+              }
             }}
+            onRefresh={handleLocationRefresh}
             queryFn={() =>
               getLocationByEmployeeCode({
                 filters: `EmployeeCode:eq:${employeeCode} AND Center.State:eq:1`,
@@ -81,7 +95,16 @@ export const InOutForm = () => {
                 pageSize: 10,
               })
             }
-            selector={data => data.location.description}
+            selector={data => {
+              // Null-safe selector with helpful error messages
+              if (!data) {
+                return 'Error: Ubicación sin datos';
+              }
+              if (!data.location) {
+                return 'Error: Ubicación incompleta';
+              }
+              return data.location.description || 'Ubicación sin nombre';
+            }}
           />
           {errors?.locationId ? (
             <Text
@@ -91,6 +114,16 @@ export const InOutForm = () => {
               ]}
             >
               {errors.locationId}
+            </Text>
+          ) : null}
+          {!isSubmitDisabled ? (
+            <Text
+              style={[
+                styles.successText,
+                { color: colors.status.success, fontSize: fontSize.xs },
+              ]}
+            >
+              ✓ Ubicación seleccionada
             </Text>
           ) : null}
         </View>
@@ -134,8 +167,20 @@ export const InOutForm = () => {
           onPress={handleSubmit}
           loading={loading}
           fullWidth
+          disabled={isSubmitDisabled}
           styles={styles.btn}
         />
+
+        {isSubmitDisabled && (
+          <Text
+            style={[
+              styles.helperText,
+              { color: colors.text.secondary, fontSize: fontSize.xs },
+            ]}
+          >
+            Selecciona una ubicación para continuar
+          </Text>
+        )}
 
         <ResponseMessage message={message} success={success} loading={false} />
       </GlassCard>
@@ -181,6 +226,15 @@ const styles = StyleSheet.create({
   errorText: {
     marginTop: 4,
     marginLeft: 4,
+  },
+  successText: {
+    marginTop: 4,
+    marginLeft: 4,
+    fontWeight: '600',
+  },
+  helperText: {
+    marginTop: 8,
+    textAlign: 'center',
   },
   btn: {
     marginTop: 8,
