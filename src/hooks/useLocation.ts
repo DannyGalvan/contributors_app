@@ -32,39 +32,50 @@ export const useLocation = () => {
 
     // 1. Check current status first (no dialog yet)
     let status = await checkPermission('location');
+    console.log('[useLocation] Permission status:', status);
 
     // 2. If denied (first time), request it
     if (status === 'denied') {
       status = await requestPermission('location');
+      console.log('[useLocation] After request permission:', status);
     }
 
     // 3. Only proceed if granted
     if (status !== 'granted') {
+      const errorMsg = `Permisos de ubicación ${status === 'denied' ? 'denegados' : 'sin responder'}. Por favor, habilita los permisos en Configuración.`;
+      if (!isMounted.current) return;
+      setLocationError(errorMsg);
+      console.warn('[useLocation] Location permission not granted:', status);
       return;
     }
 
     try {
+      console.log('[useLocation] Getting current location...');
       const coords = await getCurrentLocation();
       if (!isMounted.current) return;
+      console.log('[useLocation] Location obtained:', coords);
       setLocation(coords);
       setHasLocation(true);
       setCurrentUserLocation(coords);
       setOriginLocation(coords);
     } catch (err: any) {
       if (!isMounted.current) return;
-      setLocationError(err?.message ?? 'No se pudo obtener la ubicación');
+      const errorMsg = err?.message ?? 'No se pudo obtener la ubicación';
+      console.error('[useLocation] Error getting location:', errorMsg);
+      setLocationError(errorMsg);
     }
   };
 
   const getCurrentLocation = (): Promise<Coordinates> => {
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
-        reject(new Error('Tiempo de espera agotado al obtener la ubicación'));
+        reject(new Error('Tiempo de espera agotado al obtener la ubicación (30s). Intenta habilitando ubicación de alta precisión.'));
       }, LOCATION_TIMEOUT_MS);
 
       Geolocation.getCurrentPosition(
         ({ coords }) => {
           clearTimeout(timer);
+          console.log('[useLocation] getCurrentPosition success:', { lat: coords.latitude, lon: coords.longitude });
           resolve({
             latitude: coords.latitude,
             longitude: coords.longitude,
@@ -72,11 +83,12 @@ export const useLocation = () => {
         },
         error => {
           clearTimeout(timer);
-          reject(new Error(error.message));
+          console.error('[useLocation] getCurrentPosition error:', error);
+          reject(new Error(error.message || 'Error desconocido al obtener ubicación'));
         },
         {
           enableHighAccuracy: false,
-          timeout: 30000,
+          timeout: LOCATION_TIMEOUT_MS,
           maximumAge: 0,
         },
       );
@@ -84,9 +96,11 @@ export const useLocation = () => {
   };
 
   const followUserLocation = () => {
+    console.log('[useLocation] Starting location watch...');
     watchId.current = Geolocation.watchPosition(
       ({ coords }) => {
         if (!isMounted.current) return;
+        console.log('[useLocation] Location updated:', { lat: coords.latitude, lon: coords.longitude });
         setCurrentUserLocation({
           latitude: coords.latitude,
           longitude: coords.longitude,
@@ -94,7 +108,8 @@ export const useLocation = () => {
       },
       err => {
         if (!isMounted.current) return;
-        setLocationError(err.message);
+        console.error('[useLocation] Watch location error:', err);
+        setLocationError(err.message || 'Error en el seguimiento de ubicación');
       },
       {
         enableHighAccuracy: false,
@@ -105,9 +120,10 @@ export const useLocation = () => {
   };
 
   const stopUserFollowLocation = () => {
-    if (watchId.current !== undefined) {
+    if (watchId.current !== null && watchId.current !== undefined) {
+      console.log('[useLocation] Stopping location watch...');
       Geolocation.clearWatch(watchId.current);
-      watchId.current = undefined;
+      watchId.current = null;
     }
   };
 
@@ -116,6 +132,7 @@ export const useLocation = () => {
   };
 
   const retryLocation = () => {
+    console.log('[useLocation] Retrying location...');
     setHasLocation(false);
     setLocationError(null);
     initLocation();

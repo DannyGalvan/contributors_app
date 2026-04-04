@@ -8,8 +8,6 @@ export const useTheme = () => {
   const isDark = resolved === 'dark';
   const colors: AppColors = isDark ? darkColors : lightColors;
 
-  console.log('useTheme: ', { mode, isDark, colors });
-
   return {
     colors,
     shadows,

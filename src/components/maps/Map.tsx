@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import MapView, { Marker } from 'react-native-maps';
-import { StyleSheet, StyleProp, ViewStyle, View, Text } from 'react-native';
+import { StyleSheet, StyleProp, ViewStyle, View, Text, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import { useLocation } from '@hooks/useLocation';
@@ -31,8 +31,10 @@ export const Map = ({ mapStyles }: Props) => {
   } = useLocation();
 
   useEffect(() => {
+    console.log('[Map] Component mounted');
     followUserLocation();
     return () => {
+      console.log('[Map] Component unmounting');
       stopUserFollowLocation();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -40,14 +42,20 @@ export const Map = ({ mapStyles }: Props) => {
 
   useEffect(() => {
     if (!follow.current || !currentUserLocation) return;
+    console.log('[Map] Animating camera to', currentUserLocation);
     mapViewRef.current?.animateCamera({ center: currentUserLocation });
   }, [currentUserLocation]);
 
   const centerPosition = async () => {
-    const coords = await getCurrentLocation();
-    follow.current = true;
-    mapViewRef.current?.animateCamera({ center: coords });
-    setOrigin(coords);
+    try {
+      console.log('[Map] Centering position...');
+      const coords = await getCurrentLocation();
+      follow.current = true;
+      mapViewRef.current?.animateCamera({ center: coords });
+      setOrigin(coords);
+    } catch (err) {
+      console.error('[Map] Error centering:', err);
+    }
   };
 
   // ── Error state ──
@@ -98,6 +106,8 @@ export const Map = ({ mapStyles }: Props) => {
     return <LoadingScreen title="Obteniendo ubicación..." />;
   }
 
+  console.log('[Map] Rendering map for location:', currentUserLocation);
+
   return (
     <>
       <MapView
@@ -115,7 +125,11 @@ export const Map = ({ mapStyles }: Props) => {
         userLocationUpdateInterval={3000}
         showsMyLocationButton={false}
         loadingEnabled
+        loadingIndicatorColor={colors.brand.primary}
         onTouchStart={() => (follow.current = false)}
+        onError={(error) => {
+          console.error('[Map] MapView error:', error);
+        }}
       >
         <Marker
           coordinate={currentUserLocation}
