@@ -1,6 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import React, { useEffect, useRef } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+  Text,
+  ToastAndroid,
+  View,
+} from 'react-native';
 import SelectDropdown from 'react-native-select-dropdown';
 import { TouchableButton } from '@components/button/TouchableButton';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -66,8 +73,25 @@ export const InputSelect = <T extends Object>({
           iconSize={18}
           styles={styles.refreshBtn}
           onPress={() => {
-            refetch();
-            onRefresh?.();
+            Alert.alert(
+              'Actualizar',
+              `¿Deseas actualizar la lista de ${entity}?`,
+              [
+                { text: 'Cancelar', style: 'cancel' },
+                {
+                  text: 'Actualizar',
+                  onPress: () => {
+                    refetch();
+                    onRefresh?.();
+                    ToastAndroid.show(
+                      `${entity} actualizados`,
+                      ToastAndroid.SHORT,
+                    );
+                  },
+                },
+              ],
+              { cancelable: true },
+            );
           }}
         />
       </View>
@@ -92,8 +116,25 @@ export const InputSelect = <T extends Object>({
           iconSize={18}
           styles={styles.refreshBtn}
           onPress={() => {
-            refetch();
-            onRefresh?.();
+            Alert.alert(
+              'Error',
+              `No se pudieron cargar los ${entity}. ¿Deseas reintentar?`,
+              [
+                { text: 'Cancelar', style: 'cancel' },
+                {
+                  text: 'Reintentar',
+                  onPress: () => {
+                    refetch();
+                    onRefresh?.();
+                    ToastAndroid.show(
+                      `Reintentando cargar ${entity}...`,
+                      ToastAndroid.SHORT,
+                    );
+                  },
+                },
+              ],
+              { cancelable: true },
+            );
           }}
         />
       </View>
@@ -241,8 +282,25 @@ export const InputSelect = <T extends Object>({
             iconSize={18}
             styles={styles.refreshBtn}
             onPress={() => {
-              refetch();
-              onRefresh?.();
+              Alert.alert(
+                'Actualizar',
+                `¿Deseas actualizar la lista de ${entity}?`,
+                [
+                  { text: 'Cancelar', style: 'cancel' },
+                  {
+                    text: 'Actualizar',
+                    onPress: () => {
+                      refetch();
+                      onRefresh?.();
+                      ToastAndroid.show(
+                        `Reintentando cargar ${entity}...`,
+                        ToastAndroid.SHORT,
+                      );
+                    },
+                  },
+                ],
+                { cancelable: true },
+              );
             }}
           />
         </>

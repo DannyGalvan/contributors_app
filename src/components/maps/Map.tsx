@@ -1,6 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import MapView, { Marker } from 'react-native-maps';
-import { StyleSheet, StyleProp, ViewStyle, View, Text, Platform } from 'react-native';
+import {
+  StyleSheet,
+  StyleProp,
+  ViewStyle,
+  View,
+  Text,
+  Platform,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import { useLocation } from '@hooks/useLocation';
@@ -127,9 +134,6 @@ export const Map = ({ mapStyles }: Props) => {
         loadingEnabled
         loadingIndicatorColor={colors.brand.primary}
         onTouchStart={() => (follow.current = false)}
-        onError={(error) => {
-          console.error('[Map] MapView error:', error);
-        }}
       >
         <Marker
           coordinate={currentUserLocation}
