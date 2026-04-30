@@ -12,16 +12,18 @@ export const useDataSource = () => {
       try {
         if (!dataSource.isInitialized) {
           await dataSource.initialize();
-          await initializeAuth();
         }
+        await initializeAuth();
       } catch (error) {
         console.log('error', error);
+      } finally {
+        setLoadDataSource(false);
       }
-      setLoadDataSource(false);
     };
 
     connect();
-  }, [isLoading]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return { loadDataSource, isLoading };
 };

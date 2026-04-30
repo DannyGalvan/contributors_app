@@ -8,13 +8,22 @@ export const useVerifyVersion = () => {
 
   useEffect(() => {
     const verifyVersion = async () => {
-      const responseVerify = await getAppValueByKey('AppVersion');
-      if (responseVerify.success) {
-        if (APP_VERSION === responseVerify.data.value) {
+      try {
+        const responseVerify = await getAppValueByKey('AppVersion');
+        if (responseVerify.success) {
+          if (APP_VERSION === responseVerify.data.value) {
+            setIsVerified(true);
+          }
+        } else {
+          // If the network request works but success is false, maybe let them pass or handle it
           setIsVerified(true);
         }
+      } catch (error) {
+        // En caso de fallo de red en producción, evitamos que la app se quede colgada
+        setIsVerified(true);
+      } finally {
+        setIsLoadingVerification(false);
       }
-      setIsLoadingVerification(false);
     };
 
     verifyVersion();

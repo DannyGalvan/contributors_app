@@ -59,14 +59,18 @@ export const useAuthStore = create<AuthStoreState>(set => ({
   initializeAuth: async () => {
     set({ isLoadingAuth: true });
 
-    const data = await getSessionStorage<AuthState>(StorageKey.auth);
+    try {
+      const data = await getSessionStorage<AuthState>(StorageKey.auth);
 
-    if (data) {
-      setAuthorizationHeader(data.token);
-      set({ authState: { ...data } });
+      if (data) {
+        setAuthorizationHeader(data.token);
+        set({ authState: { ...data } });
+      }
+    } catch (error) {
+      console.log('Error initializing auth:', error);
+    } finally {
+      set({ isLoadingAuth: false });
     }
-
-    set({ isLoadingAuth: false });
   },
   logout: () => {
     setAuthorizationHeader('');
