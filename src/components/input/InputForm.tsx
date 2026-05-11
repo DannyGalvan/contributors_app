@@ -31,6 +31,7 @@ interface Props {
   colorInput?: any;
   placeholderTextColor?: string;
   iconColor?: string;
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
 }
 
 export const InputForm = ({
@@ -47,6 +48,7 @@ export const InputForm = ({
   readonly,
   icon,
   containerStyles,
+  autoCapitalize,
 }: Props) => {
   const { colors, radius, fontSize, fontWeight } = useTheme();
   const { isToggled, toggle } = useToggle();
@@ -94,7 +96,7 @@ export const InputForm = ({
           keyboardType={keyboardType ?? 'default'}
           placeholder={placeholder}
           placeholderTextColor={colors.text.muted}
-          onChangeText={(text) => onChangeText?.(text, name)}
+          onChangeText={text => onChangeText?.(text, name)}
           value={value}
           secureTextEntry={secureTextEntry && !isToggled}
           onFocus={() => {
@@ -106,6 +108,7 @@ export const InputForm = ({
           numberOfLines={multiline ? 4 : 1}
           textBreakStrategy="highQuality"
           readOnly={readonly}
+          autoCapitalize={autoCapitalize}
         />
         {icon && (
           <TouchableButton

@@ -12,7 +12,10 @@ interface VacationCardProps {
   data: VacationResponse;
 }
 
-const stateVariantMap: Record<string, 'success' | 'warning' | 'danger' | 'info' | 'pending'> = {
+const stateVariantMap: Record<
+  string,
+  'success' | 'warning' | 'danger' | 'info' | 'pending'
+> = {
   APROBADA: 'success',
   APROBADO: 'success',
   PENDIENTE: 'pending',
@@ -24,14 +27,13 @@ const stateVariantMap: Record<string, 'success' | 'warning' | 'danger' | 'info' 
 export const VacationCard = ({ data }: VacationCardProps) => {
   const { colors, fontSize, fontWeight } = useTheme();
   const stateLabel = STATES_TYPES_LABELS[data.state] ?? data.state;
-  const badgeVariant = stateVariantMap[data.state?.toUpperCase()] ?? 'pending';
+  const badgeVariant =
+    stateVariantMap[data.state?.toString().toUpperCase()] ?? 'pending';
 
   return (
     <GlassCard style={styles.card} padding={0}>
       {/* Header */}
-      <View
-        style={[styles.header, { borderBottomColor: colors.border.glass }]}
-      >
+      <View style={[styles.header, { borderBottomColor: colors.border.glass }]}>
         <View style={styles.headerLeft}>
           <Icon
             name="umbrella-outline"

@@ -12,6 +12,7 @@ export const MAX_REQUESTS_DAYS_VACATIONS = 15;
 
 export const StorageKey = {
   auth: '@auth',
+  rememberMe: '@rememberMe',
 };
 
 export const formatString = 'dd/MM/yyyy h:mm:ss a';

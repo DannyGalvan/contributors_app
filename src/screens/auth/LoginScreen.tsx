@@ -1,6 +1,7 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 import { TouchableButton } from '@components/button/TouchableButton';
 import { InputForm } from '@components/input/InputForm';
@@ -20,6 +21,13 @@ import { AuthParamList } from '@app-types/IAuthNavigator';
 import { authShema } from '@validations/AuthValidations';
 import { handleOneLevelZodError } from '@utils/converted';
 import { login } from '@services/authService';
+import {
+  getSessionStorage,
+  createSessionStorage,
+  updateSessionStorage,
+  removeSessionStorage,
+} from '@database/repository/sessionStorageRepository';
+import { StorageKey } from '@config/constants';
 
 const initialLogin: LoginRequest = { dpi: '', password: '' };
 
@@ -36,22 +44,7 @@ export const LoginScreen = () => {
   const { navigate } = useNavigation<NavigationProp<AuthParamList>>();
   const { colors, fontSize, fontWeight } = useTheme();
 
-  const handleLogin = async (form: LoginRequest) => {
-    resetError();
-    const response = await login(form);
-    if (!response.success) return response;
-    const authResponse = response.data as LoginResponse;
-    signIn({
-      username: authResponse.name,
-      token: authResponse.token,
-      idUser: authResponse.userId,
-      employeeCode: authResponse.employeeCode,
-      companyCode: authResponse.companyCode,
-      startYearToWork: authResponse.startYearToWork,
-      startDateToWork: authResponse.startDateToWork,
-    });
-    return response;
-  };
+  const [rememberMe, setRememberMe] = useState(false);
 
   const {
     form,
@@ -67,6 +60,56 @@ export const LoginScreen = () => {
     handleLogin,
     true,
   );
+
+  useEffect(() => {
+    const loadRememberedDpi = async () => {
+      try {
+        const rememberedDpi = await getSessionStorage<string>(
+          StorageKey.rememberMe,
+        );
+        if (rememberedDpi) {
+          handleChange('dpi', rememberedDpi);
+          setRememberMe(true);
+        }
+      } catch (e) {
+        console.log('Error loading remembered DPI', e);
+      }
+    };
+    loadRememberedDpi();
+  }, []);
+
+  async function handleLogin(form: LoginRequest) {
+    resetError();
+    const response = await login(form);
+    if (!response.success) return response;
+
+    try {
+      if (rememberMe) {
+        const existing = await getSessionStorage<string>(StorageKey.rememberMe);
+        if (existing) {
+          await updateSessionStorage(StorageKey.rememberMe, form.dpi);
+        } else {
+          await createSessionStorage(StorageKey.rememberMe, form.dpi);
+        }
+      } else {
+        await removeSessionStorage(StorageKey.rememberMe);
+      }
+    } catch (e) {
+      console.log('Error saving remembered DPI', e);
+    }
+
+    const authResponse = response.data as LoginResponse;
+    signIn({
+      username: authResponse.name,
+      token: authResponse.token,
+      idUser: authResponse.userId,
+      employeeCode: authResponse.employeeCode,
+      companyCode: authResponse.companyCode,
+      startYearToWork: authResponse.startYearToWork,
+      startDateToWork: authResponse.startDateToWork,
+    });
+    return response;
+  }
 
   return (
     // Login has no header so keyboardOffset=0
@@ -118,6 +161,30 @@ export const LoginScreen = () => {
           secureTextEntry={true}
           icon="eye-outline"
         />
+
+        <TouchableOpacity
+          activeOpacity={0.7}
+          style={styles.rememberMeContainer}
+          onPress={() => setRememberMe(!rememberMe)}
+        >
+          <Icon
+            name={rememberMe ? 'checkbox-outline' : 'square-outline'}
+            size={22}
+            color={rememberMe ? colors.brand.primary : colors.text.secondary}
+          />
+          <Text
+            style={[
+              styles.rememberMeText,
+              {
+                color: colors.text.primary,
+                fontSize: fontSize.sm,
+                fontWeight: fontWeight.medium,
+              },
+            ]}
+          >
+            Recuérdame
+          </Text>
+        </TouchableOpacity>
 
         <TouchableButton
           variant="cta"
@@ -200,6 +267,16 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '100%',
+  },
+  rememberMeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    marginBottom: 4,
+    marginLeft: 4,
+  },
+  rememberMeText: {
+    marginLeft: 8,
   },
   loginBtn: {
     marginTop: 20,

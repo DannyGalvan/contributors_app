@@ -43,14 +43,30 @@ export const RegisterScreen = () => {
     const response = await createUser(form);
     dispatchAlert({
       title: 'Mensaje',
-      message: !response.success ? response.message : 'Usuario creado con exito',
-      fn: () => { if (response.success) navigate('Login'); },
+      message: !response.success
+        ? response.message
+        : 'Usuario creado con exito',
+      fn: () => {
+        if (response.success) navigate('Login');
+      },
     });
     return response;
   };
 
-  const { form, handleChange, handleSubmit, errors, loading, message, success } =
-    useForm<UserRequest, UserResponse>(initialRegister, registerValidations, sendForm, true);
+  const {
+    form,
+    handleChange,
+    handleSubmit,
+    errors,
+    loading,
+    message,
+    success,
+  } = useForm<UserRequest, UserResponse>(
+    initialRegister,
+    registerValidations,
+    sendForm,
+    true,
+  );
 
   return (
     // keyboardOffset=56 accounts for the back-button header on Android
@@ -59,10 +75,24 @@ export const RegisterScreen = () => {
         <Logo isVisible={false} style={styles.logo} />
       </View>
 
-      <Text style={[styles.title, { color: colors.text.inverse, fontSize: fontSize['2xl'], fontWeight: fontWeight.bold }]}>
+      <Text
+        style={[
+          styles.title,
+          {
+            color: colors.text.inverse,
+            fontSize: fontSize['2xl'],
+            fontWeight: fontWeight.bold,
+          },
+        ]}
+      >
         Registro de Usuario
       </Text>
-      <Text style={[styles.subtitle, { color: colors.text.inverseSecondary, fontSize: fontSize.sm }]}>
+      <Text
+        style={[
+          styles.subtitle,
+          { color: colors.text.inverseSecondary, fontSize: fontSize.sm },
+        ]}
+      >
         Completa tus datos para crear una cuenta
       </Text>
 
@@ -72,7 +102,7 @@ export const RegisterScreen = () => {
           label="Correo Electrónico"
           placeholder="Ingrese su correo electrónico"
           value={form.email}
-          onChangeText={(text) => handleChange('email', text)}
+          onChangeText={text => handleChange('email', text)}
           errorMessage={errors?.email}
           secureTextEntry={false}
           icon="mail-outline"
@@ -84,7 +114,7 @@ export const RegisterScreen = () => {
           label="DPI"
           placeholder="Ingrese su DPI"
           value={form.dpi}
-          onChangeText={(text) => handleChange('dpi', text)}
+          onChangeText={text => handleChange('dpi', text)}
           errorMessage={errors?.dpi}
           secureTextEntry={false}
           icon="card-outline"
@@ -95,7 +125,7 @@ export const RegisterScreen = () => {
           label="Número de teléfono"
           placeholder="Ingrese su número de teléfono"
           value={form.number}
-          onChangeText={(text) => handleChange('number', text)}
+          onChangeText={text => handleChange('number', text)}
           errorMessage={errors?.number}
           secureTextEntry={false}
           icon="call-outline"
@@ -106,7 +136,7 @@ export const RegisterScreen = () => {
           label="Contraseña"
           placeholder="Ingrese su contraseña"
           value={form.password}
-          onChangeText={(text) => handleChange('password', text)}
+          onChangeText={text => handleChange('password', text)}
           errorMessage={errors?.password}
           secureTextEntry={true}
           icon="eye-outline"
@@ -116,7 +146,7 @@ export const RegisterScreen = () => {
           label="Confirmar Contraseña"
           placeholder="Confirme su contraseña"
           value={form.confirm}
-          onChangeText={(text) => handleChange('confirm', text)}
+          onChangeText={text => handleChange('confirm', text)}
           errorMessage={errors?.confirm}
           secureTextEntry={true}
           icon="eye-outline"
@@ -136,7 +166,10 @@ export const RegisterScreen = () => {
       </GlassCard>
 
       <Text
-        style={[styles.link, { color: colors.text.inverseSecondary, fontSize: fontSize.sm }]}
+        style={[
+          styles.link,
+          { color: colors.text.inverseSecondary, fontSize: fontSize.sm },
+        ]}
         onPress={() => navigate('Login')}
       >
         ¿Ya tienes cuenta?{' '}
