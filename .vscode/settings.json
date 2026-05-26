@@ -35,5 +35,5 @@
             "password": "SzQ#Ts84oyMA"
         }
     ],
-    "java.configuration.updateBuildConfiguration": "interactive"
+    "java.configuration.updateBuildConfiguration": "automatic"
 }
