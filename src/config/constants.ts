@@ -1,10 +1,10 @@
-import { API_URL, ENV_APP, MAPS_API_KEY } from '@env';
+import { API_URL, APP_VERSION, ENV_APP, MAPS_API_KEY } from '@env';
 
-console.log({ API_URL, MAPS_API_KEY, ENV_APP, message: 'Constants' });
+console.log({ API_URL, MAPS_API_KEY, ENV_APP, APP_VERSION, message: 'Constants' });
 
 export const URL_BASE = API_URL;
 
-export const APP_VERSION = '1.0.11';
+export { APP_VERSION };
 
 export const NAME_BD = 'quicksqlitetest-typeorm.db';
 

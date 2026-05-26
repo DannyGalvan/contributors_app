@@ -6,7 +6,8 @@
       "Bash(npm view *)",
       "Bash(git add *)",
       "Bash(npm run *)",
-      "Bash(pod install *)"
+      "Bash(pod install *)",
+      "Bash(python3 *)"
     ]
   }
 }
