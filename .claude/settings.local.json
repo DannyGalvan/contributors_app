@@ -31,7 +31,8 @@
       "Bash(~/Library/Android/sdk/platform-tools/adb -s emulator-5554 logcat -d)",
       "Bash(~/Library/Android/sdk/platform-tools/adb *)",
       "Bash(curl *)",
-      "Bash(echo \"exit: $?\")"
+      "Bash(echo \"exit: $?\")",
+      "Bash(xcodebuild *)"
     ]
   }
 }
