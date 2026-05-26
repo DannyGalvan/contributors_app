@@ -7,7 +7,31 @@
       "Bash(git add *)",
       "Bash(npm run *)",
       "Bash(pod install *)",
-      "Bash(python3 *)"
+      "Bash(python3 *)",
+      "Bash(npx tsc *)",
+      "Bash(node -e ' *)",
+      "Bash(node *)",
+      "Bash(sed -n '75,140p' /Users/dannygalvan/Documents/Repositorios/android/contributors_app/src/components/input/InputSelect.tsx)",
+      "Bash(sed -n '280,310p' /Users/dannygalvan/Documents/Repositorios/android/contributors_app/src/components/input/InputSelect.tsx)",
+      "Bash(./gradlew app:assembleDebug)",
+      "Bash(./gradlew app:assembleDebug --no-daemon)",
+      "Bash(sed -n '9,12p' /Users/dannygalvan/Documents/Repositorios/android/contributors_app/ios/contributors_app/Info.plist)",
+      "Bash(sed -n '17,20p' /Users/dannygalvan/Documents/Repositorios/android/contributors_app/ios/contributors_app/Info.plist)",
+      "Bash(sips *)",
+      "Bash(sort -t: -k2 -n)",
+      "Bash(adb devices *)",
+      "Bash(~/Library/Android/sdk/platform-tools/adb devices *)",
+      "Bash(~/Library/Android/sdk/platform-tools/adb reverse *)",
+      "Bash(~/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell am force-stop com.servicioappgrupomisol.contributors_app)",
+      "Bash(~/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell am start -n com.servicioappgrupomisol.contributors_app/.MainActivity)",
+      "Bash(~/Library/Android/sdk/platform-tools/adb -s emulator-5554 logcat -d -t 50)",
+      "Bash(~/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell pidof com.servicioappgrupomisol.contributors_app)",
+      "Bash(~/Library/Android/sdk/platform-tools/adb -s emulator-5554 logcat --pid=6302 -d)",
+      "Bash(~/Library/Android/sdk/platform-tools/adb -s emulator-5554 reverse tcp:8081 tcp:8081)",
+      "Bash(~/Library/Android/sdk/platform-tools/adb -s emulator-5554 logcat -d)",
+      "Bash(~/Library/Android/sdk/platform-tools/adb *)",
+      "Bash(curl *)",
+      "Bash(echo \"exit: $?\")"
     ]
   }
 }

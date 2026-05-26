@@ -19,7 +19,6 @@ export const useVerifyVersion = () => {
           setIsVerified(true);
         }
       } catch (error) {
-        // En caso de fallo de red en producción, evitamos que la app se quede colgada
         setIsVerified(true);
       } finally {
         setIsLoadingVerification(false);

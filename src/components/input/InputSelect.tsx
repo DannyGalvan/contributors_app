@@ -5,7 +5,6 @@ import {
   Alert,
   StyleSheet,
   Text,
-  ToastAndroid,
   View,
 } from 'react-native';
 import SelectDropdown from 'react-native-select-dropdown';
@@ -83,10 +82,6 @@ export const InputSelect = <T extends Object>({
                   onPress: () => {
                     refetch();
                     onRefresh?.();
-                    ToastAndroid.show(
-                      `${entity} actualizados`,
-                      ToastAndroid.SHORT,
-                    );
                   },
                 },
               ],
@@ -126,10 +121,6 @@ export const InputSelect = <T extends Object>({
                   onPress: () => {
                     refetch();
                     onRefresh?.();
-                    ToastAndroid.show(
-                      `Reintentando cargar ${entity}...`,
-                      ToastAndroid.SHORT,
-                    );
                   },
                 },
               ],
@@ -292,10 +283,6 @@ export const InputSelect = <T extends Object>({
                     onPress: () => {
                       refetch();
                       onRefresh?.();
-                      ToastAndroid.show(
-                        `Reintentando cargar ${entity}...`,
-                        ToastAndroid.SHORT,
-                      );
                     },
                   },
                 ],

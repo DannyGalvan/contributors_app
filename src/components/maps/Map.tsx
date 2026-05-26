@@ -38,10 +38,8 @@ export const Map = ({ mapStyles }: Props) => {
   } = useLocation();
 
   useEffect(() => {
-    console.log('[Map] Component mounted');
     followUserLocation();
     return () => {
-      console.log('[Map] Component unmounting');
       stopUserFollowLocation();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -49,20 +47,16 @@ export const Map = ({ mapStyles }: Props) => {
 
   useEffect(() => {
     if (!follow.current || !currentUserLocation) return;
-    console.log('[Map] Animating camera to', currentUserLocation);
     mapViewRef.current?.animateCamera({ center: currentUserLocation });
   }, [currentUserLocation]);
 
   const centerPosition = async () => {
     try {
-      console.log('[Map] Centering position...');
       const coords = await getCurrentLocation();
       follow.current = true;
       mapViewRef.current?.animateCamera({ center: coords });
       setOrigin(coords);
-    } catch (err) {
-      console.error('[Map] Error centering:', err);
-    }
+    } catch (_err) {}
   };
 
   // ── Error state ──
@@ -112,8 +106,6 @@ export const Map = ({ mapStyles }: Props) => {
   if (!hasLocation || currentUserLocation === null) {
     return <LoadingScreen title="Obteniendo ubicación..." />;
   }
-
-  console.log('[Map] Rendering map for location:', currentUserLocation);
 
   return (
     <>

@@ -1,10 +1,8 @@
 {
   "extends": "@react-native/typescript-config/tsconfig.json",
-  "include": ["**/*.ts", "**/*.tsx","nativewind-env.d.ts"],
+  "include": ["**/*.ts", "**/*.tsx", "nativewind-env.d.ts"],
   "exclude": ["**/node_modules", "**/Pods"],
   "compilerOptions": {
-    "baseUrl": "./",
-    "typeRoots": ["./node_modules/@types", "./nativewind-env.d.ts", "./src/types"],
     "paths": {
       "@icons/*": ["./src/assets/icon/*"],
       "@images/*": ["./src/assets/images/*"],
@@ -22,12 +20,10 @@
       "@validations/*": ["./src/validations/*"],
       "@database/*": ["./src/database/*"],
       "@observables/*": ["./src/observables/*"],
-      "@theme/*": ["./src/theme/*"],
+      "@theme/*": ["./src/theme/*"]
     },
     "strict": false,
-    "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "skipLibCheck": true
+    "experimentalDecorators": true
   }
 }

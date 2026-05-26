@@ -6,6 +6,7 @@ import {
   PERMISSIONS,
   request,
 } from 'react-native-permissions';
+import { Platform } from 'react-native';
 
 export type PermissionKey = 'location' | 'camera';
 
@@ -22,6 +23,13 @@ const ANDROID_PERMISSION_MAP: Record<PermissionKey, Permission> = {
   location: PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION,
   camera: PERMISSIONS.ANDROID.CAMERA,
 };
+
+const IOS_PERMISSION_MAP: Record<PermissionKey, Permission> = {
+  location: PERMISSIONS.IOS.LOCATION_WHEN_IN_USE,
+  camera: PERMISSIONS.IOS.CAMERA,
+};
+
+const PERMISSION_MAP = Platform.OS === 'ios' ? IOS_PERMISSION_MAP : ANDROID_PERMISSION_MAP;
 
 const initialState: PermissionsState = {
   location: 'unavailable',
@@ -52,7 +60,7 @@ export const usePermissionsStore = create<PermissionsStore>((set) => ({
   checkPermission: async (key: PermissionKey): Promise<PermissionStatus> => {
     set({ isChecking: true });
     try {
-      const permission = ANDROID_PERMISSION_MAP[key];
+      const permission = PERMISSION_MAP[key];
       const result = await check(permission);
       const status = result as PermissionStatus;
       set((s) => ({
@@ -69,7 +77,7 @@ export const usePermissionsStore = create<PermissionsStore>((set) => ({
   requestPermission: async (key: PermissionKey): Promise<PermissionStatus> => {
     set({ isChecking: true });
     try {
-      const permission = ANDROID_PERMISSION_MAP[key];
+      const permission = PERMISSION_MAP[key];
       const result = await request(permission);
       const status = result as PermissionStatus;
       set((s) => ({
@@ -87,8 +95,8 @@ export const usePermissionsStore = create<PermissionsStore>((set) => ({
     set({ isChecking: true });
     try {
       const [locationResult, cameraResult] = await Promise.all([
-        check(ANDROID_PERMISSION_MAP.location),
-        check(ANDROID_PERMISSION_MAP.camera),
+        check(PERMISSION_MAP.location),
+        check(PERMISSION_MAP.camera),
       ]);
       set({
         permissions: {

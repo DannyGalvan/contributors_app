@@ -1,9 +1,10 @@
 import React from 'react';
-import { StyleSheet, Text, View, Linking, Alert } from 'react-native';
+import { Alert, Linking, Platform, StyleSheet, Text, View } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { APP_STORE_ID } from '@env';
 
-import { ScreenBackground } from '@components/layout/ScreenBackground';
 import { GlassCard } from '@components/layout/GlassCard';
+import { ScreenBackground } from '@components/layout/ScreenBackground';
 import { TouchableButton } from '@components/button/TouchableButton';
 import { useTheme } from '@hooks/useTheme';
 
@@ -11,23 +12,39 @@ interface Props {
   title: string;
 }
 
+const ANDROID_PACKAGE = 'com.servicioappgrupomisol.contributors_app';
+
+const getStoreConfig = () => {
+  if (Platform.OS === 'ios') {
+    return {
+      primaryUrl: `itms-apps://itunes.apple.com/app/id${APP_STORE_ID}`,
+      fallbackUrl: `https://apps.apple.com/app/id${APP_STORE_ID}`,
+      buttonLabel: 'Ir a App Store',
+      buttonIcon: 'logo-apple',
+      errorMsg: 'No se pudo abrir la App Store',
+    };
+  }
+  return {
+    primaryUrl: `market://details?id=${ANDROID_PACKAGE}`,
+    fallbackUrl: `https://play.google.com/store/apps/details?id=${ANDROID_PACKAGE}`,
+    buttonLabel: 'Ir a Play Store',
+    buttonIcon: 'logo-google-playstore',
+    errorMsg: 'No se pudo abrir la Play Store',
+  };
+};
+
 export const UpdateScreen = ({ title }: Props) => {
   const { colors, fontSize, fontWeight } = useTheme();
+  const { primaryUrl, fallbackUrl, buttonLabel, buttonIcon, errorMsg } = getStoreConfig();
 
-  const handleOpenPlayStore = async () => {
-    const packageId = 'com.servicioappgrupomisol.contributors_app';
-    const marketUrl = `market://details?id=${packageId}`;
-    const websiteUrl = `https://play.google.com/store/apps/details?id=${packageId}`;
-
+  const handleOpenStore = async () => {
     try {
-      // Primero intenta abrir con el app scheme de Play Store
-      await Linking.openURL(marketUrl);
+      await Linking.openURL(primaryUrl);
     } catch {
       try {
-        // Si falla, intenta abrir en el navegador
-        await Linking.openURL(websiteUrl);
+        await Linking.openURL(fallbackUrl);
       } catch {
-        Alert.alert('Error', 'No se pudo abrir la Play Store');
+        Alert.alert('Error', errorMsg);
       }
     }
   };
@@ -64,9 +81,9 @@ export const UpdateScreen = ({ title }: Props) => {
           </Text>
           <TouchableButton
             variant="cta"
-            title="Ir a Play Store"
-            icon="logo-google-playstore"
-            onPress={handleOpenPlayStore}
+            title={buttonLabel}
+            icon={buttonIcon}
+            onPress={handleOpenStore}
             fullWidth
             styles={styles.btn}
           />

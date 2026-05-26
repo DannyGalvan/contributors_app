@@ -1,4 +1,4 @@
-import axios, { AxiosError } from 'axios';
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { URL_BASE } from '@config/constants';
 import { ForbiddenError, UnauthorizedError } from '@app-types/Errors';
 import {
@@ -8,24 +8,16 @@ import {
 } from '@utils/networkErrorHandler';
 import { useNetworkStore } from '@stores/useNetworkStore';
 
-// Track retry counts per request
-const retryCountMap = new WeakMap<any, number>();
+interface RetryableConfig extends InternalAxiosRequestConfig {
+  _retryCount?: number;
+}
 
 export const marksApi = axios.create({
   baseURL: URL_BASE,
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 30000, // 30 second timeout
-});
-
-// Request interceptor: track retry attempts
-marksApi.interceptors.request.use(config => {
-  // Initialize retry count if not exists
-  if (!retryCountMap.has(config)) {
-    retryCountMap.set(config, 0);
-  }
-  return config;
+  timeout: 15000,
 });
 
 // Response interceptor: handle errors with retry logic
@@ -39,7 +31,8 @@ marksApi.interceptors.response.use(
     // If no response, it's likely a network error
     if (!response) {
       const isNetwork = isNetworkError(error);
-      const retryCount = retryCountMap.get(config) || 0;
+      const retryableConfig = config as RetryableConfig;
+      const retryCount = retryableConfig._retryCount || 0;
 
       // Update network store to reflect connectivity issue
       if (isNetwork) {
@@ -49,10 +42,10 @@ marksApi.interceptors.response.use(
 
       // Attempt retry with exponential backoff
       if (isNetwork && shouldRetry(error, retryCount)) {
-        retryCountMap.set(config, retryCount + 1);
+        retryableConfig._retryCount = retryCount + 1;
         const delay = getBackoffDelay(retryCount);
         await new Promise<void>(resolve => setTimeout(() => resolve(), delay));
-        return marksApi(config);
+        return marksApi(retryableConfig);
       }
 
       // If network error and no retry, throw descriptive error
@@ -84,12 +77,13 @@ marksApi.interceptors.response.use(
 
     // Retry on 503 Service Unavailable
     if (response.status === 503) {
-      const retryCount = retryCountMap.get(config) || 0;
-      if (shouldRetry(error, retryCount)) {
-        retryCountMap.set(config, retryCount + 1);
-        const delay = getBackoffDelay(retryCount);
+      const retryableConfig503 = config as RetryableConfig;
+      const retryCount503 = retryableConfig503._retryCount || 0;
+      if (shouldRetry(error, retryCount503)) {
+        retryableConfig503._retryCount = retryCount503 + 1;
+        const delay = getBackoffDelay(retryCount503);
         await new Promise<void>(resolve => setTimeout(() => resolve(), delay));
-        return marksApi(config);
+        return marksApi(retryableConfig503);
       }
       throw new Error(
         'El servidor está temporalmente no disponible. Intenta más tarde.',

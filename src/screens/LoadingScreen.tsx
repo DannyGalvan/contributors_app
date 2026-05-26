@@ -1,8 +1,8 @@
-import React from 'react';
-import { ActivityIndicator, View, StyleSheet, Text } from 'react-native';
-import { ScreenBackground } from '@components/layout/ScreenBackground';
 import { Logo } from '@components/Icons/Logo';
+import { ScreenBackground } from '@components/layout/ScreenBackground';
 import { useTheme } from '@hooks/useTheme';
+import React from 'react';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 interface Props {
   title: string;

@@ -15,10 +15,11 @@ const useNetworkListener = () => {
   const updateNetworkStatus = (state: NetInfoState) => {
     if (!isMounted.current) return;
 
+    // isInternetReachable can be null on Android emulator (undetermined) — treat null as connected
     const isActuallyConnected =
       state.isConnected != null &&
       state.isConnected &&
-      Boolean(state.isInternetReachable);
+      (state.isInternetReachable === null || state.isInternetReachable === true);
 
     setIsConnected(isActuallyConnected);
     if (state.type !== 'unknown') {

@@ -168,20 +168,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		C599C043D9E24934A28F6F40 /* Set Version from env */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Set Version from env";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "set -e\n\nif [ \"$CONFIGURATION\" = \"Release\" ]; then\n    ENV_FILE=\"$SRCROOT/../.env.release\"\nelse\n    ENV_FILE=\"$SRCROOT/../.env.debug\"\nfi\n\nif [ ! -f \"$ENV_FILE\" ]; then\n    echo \"warning: Env file not found: $ENV_FILE\"\n    exit 0\nfi\n\nAPP_VERSION=$(grep '^APP_VERSION=' \"$ENV_FILE\" | cut -d'=' -f2 | tr -d '[:space:]')\nVERSION_CODE=$(grep '^VERSION_CODE=' \"$ENV_FILE\" | cut -d'=' -f2 | tr -d '[:space:]')\n\nif [ -z \"$APP_VERSION\" ] || [ -z \"$VERSION_CODE\" ]; then\n    echo \"warning: APP_VERSION or VERSION_CODE not found in $ENV_FILE\"\n    exit 0\nfi\n\nPLIST=\"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}\"\n\n/usr/libexec/PlistBuddy -c \"Set :CFBundleShortVersionString $APP_VERSION\" \"$PLIST\"\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $VERSION_CODE\" \"$PLIST\"\n\necho \"iOS version set to $APP_VERSION ($VERSION_CODE) from $ENV_FILE\"\n";
-		};
 		00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -236,6 +222,20 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
+		};
+		C599C043D9E24934A28F6F40 /* Set Version from env */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Set Version from env";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\n\nif [ \"$CONFIGURATION\" = \"Release\" ]; then\n    ENV_FILE=\"$SRCROOT/../.env.release\"\nelse\n    ENV_FILE=\"$SRCROOT/../.env.debug\"\nfi\n\nif [ ! -f \"$ENV_FILE\" ]; then\n    echo \"warning: Env file not found: $ENV_FILE\"\n    exit 0\nfi\n\nAPP_VERSION=$(grep '^APP_VERSION=' \"$ENV_FILE\" | cut -d'=' -f2 | tr -d '[:space:]')\nVERSION_CODE=$(grep '^VERSION_CODE=' \"$ENV_FILE\" | cut -d'=' -f2 | tr -d '[:space:]')\n\nif [ -z \"$APP_VERSION\" ] || [ -z \"$VERSION_CODE\" ]; then\n    echo \"warning: APP_VERSION or VERSION_CODE not found in $ENV_FILE\"\n    exit 0\nfi\n\nPLIST=\"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}\"\n\n/usr/libexec/PlistBuddy -c \"Set :CFBundleShortVersionString $APP_VERSION\" \"$PLIST\"\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $VERSION_CODE\" \"$PLIST\"\n\necho \"iOS version set to $APP_VERSION ($VERSION_CODE) from $ENV_FILE\"\n";
 		};
 		E235C05ADACE081382539298 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;

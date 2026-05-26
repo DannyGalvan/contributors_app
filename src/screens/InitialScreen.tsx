@@ -51,7 +51,7 @@ export const InitialScreen = () => {
 
   if (step === 'update') {
     return (
-      <UpdateScreen title="Versión desactualizada. Por favor actualice la aplicación desde la Play Store." />
+      <UpdateScreen title="Versión desactualizada. Por favor actualice la aplicación desde la tienda." />
     );
   }
 

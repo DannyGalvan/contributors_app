@@ -103,6 +103,9 @@ android {
         applicationId "com.servicioappgrupomisol.contributors_app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
+        def releaseEnv = loadEnvFile("release")
+        versionCode releaseEnv.getProperty("VERSION_CODE", "1").toInteger()
+        versionName releaseEnv.getProperty("APP_VERSION", "1.0.0")
     }
     signingConfigs {
         debug {
@@ -122,20 +125,14 @@ android {
     }
     buildTypes {
         debug {
-            def env = loadEnvFile("debug")
             signingConfig signingConfigs.debug
-            versionCode env.getProperty("VERSION_CODE", "1").toInteger()
-            versionName env.getProperty("APP_VERSION", "1.0.0")
-            manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = env.getProperty("MAPS_API_KEY", "")
+            manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = loadEnvFile("debug").getProperty("MAPS_API_KEY", "")
         }
         release {
-            def env = loadEnvFile("release")
             signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-            versionCode env.getProperty("VERSION_CODE", "1").toInteger()
-            versionName env.getProperty("APP_VERSION", "1.0.0")
-            manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = env.getProperty("MAPS_API_KEY", "")
+            manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = loadEnvFile("release").getProperty("MAPS_API_KEY", "")
         }
     }
     packagingOptions {      
