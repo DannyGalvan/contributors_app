@@ -32,7 +32,10 @@
       "Bash(~/Library/Android/sdk/platform-tools/adb *)",
       "Bash(curl *)",
       "Bash(echo \"exit: $?\")",
-      "Bash(xcodebuild *)"
+      "Bash(xcodebuild *)",
+      "Bash(pod --version)",
+      "Bash(grep -E \"^react-native$|nitro|vision-camera|reanimated|screens|gesture\")",
+      "Bash(grep -v \"^--$\")"
     ]
   }
 }
