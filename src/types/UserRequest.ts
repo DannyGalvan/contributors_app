@@ -6,4 +6,6 @@ export interface UserRequest {
   state?: number;
   reset?: boolean;
   number?: string;
+  countryId?: number;
+  businessCode?: number;
 }

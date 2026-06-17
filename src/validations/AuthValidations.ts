@@ -17,4 +17,8 @@ export const authShema = z.object({
       'La contraseña debe tener al menos una letra mayúscula, una letra minúscula, un número y un caracter especial',
     )
     .refine((value) => value !== '', { message: 'La contraseña es requerida' }),
+  countryId: z
+    .number({ invalid_type_error, required_error })
+    .int()
+    .min(1, 'Debes seleccionar un país'),
 });

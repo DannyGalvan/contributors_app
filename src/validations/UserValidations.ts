@@ -40,6 +40,14 @@ export const UserShema = z
       .string({ required_error, invalid_type_error })
       .min(8, 'El número de teléfono debe tener al menos 8 caracteres')
       .max(8, 'El número de teléfono debe tener como máximo 8 caracteres'),
+    countryId: z
+      .number({ required_error, invalid_type_error })
+      .int('El país debe ser un valor válido')
+      .min(1, 'Debes seleccionar un país'),
+    businessCode: z
+      .number({ required_error, invalid_type_error })
+      .int('La empresa debe ser un valor válido')
+      .min(1, 'Debes seleccionar una empresa'),
   })
   .refine((data) => data.password === data.confirm, {
     path: ['confirm'],

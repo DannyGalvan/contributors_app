@@ -14,6 +14,9 @@ export interface AuthState {
   idUser: number;
   employeeCode: string;
   companyCode: number;
+  companyName: string;
+  countryId: number;
+  countryName: string;
   startYearToWork: number;
   startDateToWork: string;
 }
@@ -25,6 +28,9 @@ export const InitialAuthState: AuthState = {
   idUser: 0,
   employeeCode: '',
   companyCode: 0,
+  companyName: '',
+  countryId: 0,
+  countryName: '',
   startYearToWork: 0,
   startDateToWork: '',
 };
@@ -35,6 +41,9 @@ export interface SignIn {
   idUser: number;
   employeeCode: string;
   companyCode: number;
+  companyName: string;
+  countryId: number;
+  countryName: string;
   startYearToWork: number;
   startDateToWork: string;
 }

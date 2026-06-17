@@ -6,6 +6,9 @@ export interface LoginResponse {
   userId: number;
   employeeCode: string;
   companyCode: number;
+  companyName: string;
+  countryId: number;
+  countryName: string;
   startYearToWork: number;
   startDateToWork: string;
 }

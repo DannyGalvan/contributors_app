@@ -23,6 +23,8 @@ interface InputSelectProps<T> {
   onRefresh?: () => void;
   onSelect: (selectedItem: T, index: number) => void;
   textInput: string;
+  defaultValue?: T;
+  hasError?: boolean;
 }
 
 export const InputSelect = <T extends Object>({
@@ -33,6 +35,8 @@ export const InputSelect = <T extends Object>({
   entity,
   selector,
   textInput,
+  defaultValue,
+  hasError,
 }: InputSelectProps<T>) => {
   const ref = useRef<SelectDropdown>(null);
   const { setError } = useErrorsStore();
@@ -152,13 +156,16 @@ export const InputSelect = <T extends Object>({
             ref={ref}
             data={data ?? []}
             onSelect={onSelect}
+            defaultValue={defaultValue}
             renderButton={(selectedItem, isOpened) => (
               <View
                 style={[
                   styles.dropBtn,
                   {
                     backgroundColor: colors.surface.input,
-                    borderColor: isOpened
+                    borderColor: hasError
+                      ? colors.text.error
+                      : isOpened
                       ? colors.border.inputFocused
                       : colors.border.input,
                     borderRadius: radius.md,
@@ -300,14 +307,12 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
     marginVertical: 6,
   },
   emptyRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 16,
     marginVertical: 6,
     gap: 8,
   },
@@ -349,7 +354,6 @@ const styles = StyleSheet.create({
   },
   dropItemText: {},
   refreshBtn: {
-    marginLeft: 8,
     paddingVertical: 13,
     paddingHorizontal: 14,
     borderRadius: 12,

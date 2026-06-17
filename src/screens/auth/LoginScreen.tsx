@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useQuery } from '@tanstack/react-query';
 
 import { TouchableButton } from '@components/button/TouchableButton';
 import { InputForm } from '@components/input/InputForm';
+import { InputSelect } from '@components/input/InputSelect';
 import { Logo } from '@components/Icons/Logo';
 import { ResponseMessage } from '@components/pure/ResponseMessage';
 import { FormScreen } from '@components/layout/FormScreen';
@@ -17,10 +19,12 @@ import { useErrorsStore } from '@stores/useErrorsStore';
 
 import { LoginRequest } from '@app-types/LoginRequest';
 import { LoginResponse } from '@app-types/LoginResponse';
+import { CountryResponse } from '@app-types/CountryResponse';
 import { AuthParamList } from '@app-types/IAuthNavigator';
 import { authShema } from '@validations/AuthValidations';
 import { handleOneLevelZodError } from '@utils/converted';
 import { login } from '@services/authService';
+import { getCountries } from '@services/countryService';
 import {
   getSessionStorage,
   createSessionStorage,
@@ -29,7 +33,12 @@ import {
 } from '@database/repository/sessionStorageRepository';
 import { StorageKey } from '@config/constants';
 
-const initialLogin: LoginRequest = { dpi: '', password: '' };
+interface RememberMeData {
+  dpi: string;
+  countryId: number;
+}
+
+const initialLogin: LoginRequest = { dpi: '', password: '', countryId: 0 };
 
 const loginValidations = (form: LoginRequest) => {
   let errors: ErrorObject = {};
@@ -45,6 +54,13 @@ export const LoginScreen = () => {
   const { colors, fontSize, fontWeight } = useTheme();
 
   const [rememberMe, setRememberMe] = useState(false);
+  const [rememberedCountryId, setRememberedCountryId] = useState<number | null>(null);
+
+  const { data: countries } = useQuery<CountryResponse[]>({
+    queryKey: ['login-countries'],
+    queryFn: getCountries,
+    staleTime: Infinity,
+  });
 
   const {
     form,
@@ -61,21 +77,27 @@ export const LoginScreen = () => {
     true,
   );
 
+  // Resolve default country object once countries are loaded
+  const defaultCountry = useMemo<CountryResponse | undefined>(() => {
+    if (!rememberedCountryId || !countries) return undefined;
+    return countries.find(c => c.id === rememberedCountryId);
+  }, [rememberedCountryId, countries]);
+
   useEffect(() => {
-    const loadRememberedDpi = async () => {
+    const loadRememberedData = async () => {
       try {
-        const rememberedDpi = await getSessionStorage<string>(
-          StorageKey.rememberMe,
-        );
-        if (rememberedDpi) {
-          handleChange('dpi', rememberedDpi);
+        const remembered = await getSessionStorage<RememberMeData>(StorageKey.rememberMe);
+        if (remembered) {
+          handleChange('dpi', remembered.dpi);
+          handleChange('countryId', remembered.countryId);
+          setRememberedCountryId(remembered.countryId);
           setRememberMe(true);
         }
       } catch (e) {
-        console.log('Error loading remembered DPI', e);
+        console.log('Error loading remembered data', e);
       }
     };
-    loadRememberedDpi();
+    loadRememberedData();
   }, []);
 
   async function handleLogin(form: LoginRequest) {
@@ -85,17 +107,18 @@ export const LoginScreen = () => {
 
     try {
       if (rememberMe) {
-        const existing = await getSessionStorage<string>(StorageKey.rememberMe);
+        const data: RememberMeData = { dpi: form.dpi, countryId: form.countryId };
+        const existing = await getSessionStorage<RememberMeData>(StorageKey.rememberMe);
         if (existing) {
-          await updateSessionStorage(StorageKey.rememberMe, form.dpi);
+          await updateSessionStorage(StorageKey.rememberMe, data);
         } else {
-          await createSessionStorage(StorageKey.rememberMe, form.dpi);
+          await createSessionStorage(StorageKey.rememberMe, data);
         }
       } else {
         await removeSessionStorage(StorageKey.rememberMe);
       }
     } catch (e) {
-      console.log('Error saving remembered DPI', e);
+      console.log('Error saving remembered data', e);
     }
 
     const authResponse = response.data as LoginResponse;
@@ -105,6 +128,9 @@ export const LoginScreen = () => {
       idUser: authResponse.userId,
       employeeCode: authResponse.employeeCode,
       companyCode: authResponse.companyCode,
+      companyName: authResponse.companyName,
+      countryId: authResponse.countryId,
+      countryName: authResponse.countryName,
       startYearToWork: authResponse.startYearToWork,
       startDateToWork: authResponse.startDateToWork,
     });
@@ -140,6 +166,33 @@ export const LoginScreen = () => {
       </Text>
 
       <GlassCard style={styles.card} intensity="medium">
+        <View style={styles.selectContainer}>
+          <Text
+            style={[
+              styles.selectLabel,
+              { color: errors?.countryId ? colors.text.error : colors.text.secondary, fontSize: fontSize.sm, fontWeight: fontWeight.medium },
+            ]}
+          >
+            País
+          </Text>
+          <InputSelect<CountryResponse>
+            key={`login-country-${rememberedCountryId ?? 'none'}`}
+            entity="país"
+            textInput="Seleccionar"
+            queryKey="login-countries"
+            queryFn={getCountries}
+            selector={item => item.name}
+            defaultValue={defaultCountry}
+            hasError={!!errors?.countryId}
+            onSelect={item => handleChange('countryId', item.id)}
+          />
+          {errors?.countryId && (
+            <Text style={[styles.errorText, { color: colors.text.error, fontSize: fontSize.xs }]}>
+              {errors.countryId}
+            </Text>
+          )}
+        </View>
+
         <InputForm
           name="dpi"
           label="DPI"
@@ -267,6 +320,18 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '100%',
+  },
+  selectContainer: {
+    marginVertical: 6,
+  },
+  selectLabel: {
+    marginLeft: 2,
+    marginBottom: 6,
+    letterSpacing: 0.3,
+  },
+  errorText: {
+    marginTop: 4,
+    marginLeft: 2,
   },
   rememberMeContainer: {
     flexDirection: 'row',

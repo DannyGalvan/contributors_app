@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 
 import { Logo } from '@components/Icons/Logo';
 import { InputForm } from '@components/input/InputForm';
+import { InputSelect } from '@components/input/InputSelect';
 import { TouchableButton } from '@components/button/TouchableButton';
 import { ResponseMessage } from '@components/pure/ResponseMessage';
 import { FormScreen } from '@components/layout/FormScreen';
@@ -13,10 +14,14 @@ import { ErrorObject, useForm } from '@hooks/useForm';
 
 import { UserRequest } from '@app-types/UserRequest';
 import { UserResponse } from '@app-types/UserResponse';
+import { CountryResponse } from '@app-types/CountryResponse';
+import { CompanyResponse } from '@app-types/CompanyResponse';
 import { AuthParamList } from '@app-types/IAuthNavigator';
 import { UserShema } from '@validations/UserValidations';
 import { dispatchAlert, handleOneLevelZodError } from '@utils/converted';
 import { createUser } from '@services/userService';
+import { getCountries } from '@services/countryService';
+import { getCompanies } from '@services/companyService';
 
 const initialRegister: UserRequest = {
   email: '',
@@ -26,6 +31,8 @@ const initialRegister: UserRequest = {
   number: '',
   reset: false,
   state: 1,
+  countryId: undefined,
+  businessCode: undefined,
 };
 
 const registerValidations = (form: UserRequest) => {
@@ -37,7 +44,15 @@ const registerValidations = (form: UserRequest) => {
 
 export const RegisterScreen = () => {
   const { navigate } = useNavigation<NavigationProp<AuthParamList>>();
-  const { colors, fontSize, fontWeight } = useTheme();
+  const { colors, radius, fontSize, fontWeight } = useTheme();
+  const [selectedCountryId, setSelectedCountryId] = useState<number | undefined>(undefined);
+  const [companyRefreshKey, setCompanyRefreshKey] = useState(0);
+
+  useEffect(() => {
+    if (selectedCountryId !== undefined) {
+      handleChange('businessCode', undefined);
+    }
+  }, [selectedCountryId]);
 
   const sendForm = async (form: UserRequest) => {
     const response = await createUser(form);
@@ -97,6 +112,68 @@ export const RegisterScreen = () => {
       </Text>
 
       <GlassCard style={styles.card} intensity="medium">
+        <View style={styles.selectContainer}>
+          <Text
+            style={[
+              styles.selectLabel,
+              { color: errors?.countryId ? colors.text.error : colors.text.secondary, fontSize: fontSize.sm, fontWeight: fontWeight.medium },
+            ]}
+          >
+            País
+          </Text>
+          <InputSelect<CountryResponse>
+            entity="país"
+            textInput="Seleccionar"
+            queryKey="register-countries"
+            queryFn={getCountries}
+            selector={item => item.name}
+            hasError={!!errors?.countryId}
+            onSelect={item => {
+              setSelectedCountryId(item.id);
+              setCompanyRefreshKey(k => k + 1);
+              handleChange('countryId', item.id);
+            }}
+          />
+          {errors?.countryId && (
+            <Text style={[styles.errorText, { color: colors.text.error, fontSize: fontSize.xs }]}>
+              {errors.countryId}
+            </Text>
+          )}
+        </View>
+
+        <View style={styles.selectContainer}>
+          <Text
+            style={[
+              styles.selectLabel,
+              { color: errors?.businessCode ? colors.text.error : colors.text.secondary, fontSize: fontSize.sm, fontWeight: fontWeight.medium },
+            ]}
+          >
+            Empresa
+          </Text>
+          {selectedCountryId ? (
+            <InputSelect<CompanyResponse>
+              entity="empresa"
+              textInput="Seleccionar"
+              queryKey={`register-companies-${selectedCountryId}-${companyRefreshKey}`}
+              queryFn={() => getCompanies(selectedCountryId)}
+              selector={item => item.name}
+              hasError={!!errors?.businessCode}
+              onSelect={item => handleChange('businessCode', item.id)}
+            />
+          ) : (
+            <View style={[styles.disabledSelect, { backgroundColor: colors.surface.input, borderColor: errors?.businessCode ? colors.text.error : colors.border.input, borderRadius: radius.md }]}>
+              <Text style={[styles.disabledText, { color: colors.text.muted, fontSize: fontSize.base }]}>
+                Selecciona un país primero
+              </Text>
+            </View>
+          )}
+          {errors?.businessCode && (
+            <Text style={[styles.errorText, { color: colors.text.error, fontSize: fontSize.xs }]}>
+              {errors.businessCode}
+            </Text>
+          )}
+        </View>
+
         <InputForm
           name="email"
           label="Correo Electrónico"
@@ -208,6 +285,25 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 20,
   },
+  selectContainer: {
+    marginVertical: 6,
+  },
+  selectLabel: {
+    marginLeft: 2,
+    marginBottom: 6,
+    letterSpacing: 0.3,
+  },
+  errorText: {
+    marginTop: 4,
+    marginLeft: 2,
+  },
+  disabledSelect: {
+    height: 50,
+    borderWidth: 1.5,
+    paddingHorizontal: 14,
+    justifyContent: 'center',
+  },
+  disabledText: {},
   btn: {
     marginTop: 12,
   },

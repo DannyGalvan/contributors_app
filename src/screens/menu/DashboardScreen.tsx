@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 import { MenuItem } from '@components/card/MenuItem';
 import { ScreenBackground } from '@components/layout/ScreenBackground';
@@ -45,6 +46,37 @@ export const Dashboard = () => {
           >
             {authState.username ?? 'Usuario'}
           </Text>
+          {(authState.companyName || authState.countryName) && (
+            <View style={styles.sessionInfo}>
+              {authState.companyName ? (
+                <View style={styles.sessionBadge}>
+                  <Icon name="business-outline" size={13} color={colors.brand.primary} style={styles.badgeIcon} />
+                  <Text
+                    style={[
+                      styles.badgeText,
+                      { color: colors.text.inverseSecondary, fontSize: fontSize.xs },
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {authState.companyName}
+                  </Text>
+                </View>
+              ) : null}
+              {authState.countryName ? (
+                <View style={styles.sessionBadge}>
+                  <Icon name="flag-outline" size={13} color={colors.brand.primary} style={styles.badgeIcon} />
+                  <Text
+                    style={[
+                      styles.badgeText,
+                      { color: colors.text.inverseSecondary, fontSize: fontSize.xs },
+                    ]}
+                  >
+                    {authState.countryName}
+                  </Text>
+                </View>
+              ) : null}
+            </View>
+          )}
         </View>
 
         {/* Section title */}
@@ -105,6 +137,21 @@ const styles = StyleSheet.create({
   },
   username: {
     letterSpacing: -0.5,
+    marginBottom: 8,
+  },
+  sessionInfo: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  sessionBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  badgeIcon: {},
+  badgeText: {
+    letterSpacing: 0.2,
   },
   sectionTitle: {
     paddingHorizontal: 28,
