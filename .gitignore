@@ -83,3 +83,5 @@ yarn-error.log
 .env.release
 android/local.properties
 android/app/src/main/res/values/google_maps_api.xml
+# Claude Code
+.claude/settings.local.json
