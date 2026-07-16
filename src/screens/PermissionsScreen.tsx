@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  ActivityIndicator,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -83,7 +83,11 @@ export const PermissionsScreen = ({ onComplete }: PermissionsScreenProps) => {
 
   return (
     <ScreenBackground>
-      <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
         {/* Header */}
         <View style={styles.header}>
           <View
@@ -175,6 +179,43 @@ export const PermissionsScreen = ({ onComplete }: PermissionsScreenProps) => {
           })}
         </GlassCard>
 
+        {/* Prominent Disclosure — required by Google Play User Data policy */}
+        <View
+          style={[
+            styles.disclosure,
+            {
+              backgroundColor: colors.status.infoBg,
+              borderColor: colors.status.info,
+              borderRadius: radius.md,
+            },
+          ]}
+        >
+          <View style={styles.disclosureHeader}>
+            <Icon name="information-circle-outline" size={18} color={colors.status.info} style={styles.disclosureIcon} />
+            <Text
+              style={[
+                styles.disclosureTitle,
+                { color: colors.text.inverse, fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+              ]}
+            >
+              Aviso de recopilación de datos
+            </Text>
+          </View>
+          <Text style={[styles.disclosureBody, { color: colors.text.inverseSecondary, fontSize: fontSize.xs }]}>
+            {'Al conceder los permisos, esta app recopilará y usará tus datos de la siguiente manera:\n\n'}
+            {'• '}
+            <Text style={{ fontWeight: fontWeight.semibold, color: colors.text.inverse }}>{'Ubicación GPS (latitud y longitud): '}</Text>
+            {'se recopila para verificar tu asistencia en proyectos y centros de trabajo, incluso cuando la app está en segundo plano.\n\n'}
+            {'• '}
+            <Text style={{ fontWeight: fontWeight.semibold, color: colors.text.inverse }}>{'Cámara: '}</Text>
+            {'se usa únicamente para escanear códigos QR de proyectos. No se almacenan imágenes.\n\n'}
+            {'• '}
+            <Text style={{ fontWeight: fontWeight.semibold, color: colors.text.inverse }}>{'Compartición: '}</Text>
+            {'los datos de ubicación y asistencia se comparten con tu empresa empleadora afiliada a Grupo Misol. No se usan para publicidad.\n\n'}
+            {'Para más información consulta nuestra Política de Privacidad en grupomisol.com'}
+          </Text>
+        </View>
+
         {/* Actions */}
         <View style={styles.actions}>
           {hasAnyBlocked && (
@@ -219,14 +260,14 @@ export const PermissionsScreen = ({ onComplete }: PermissionsScreenProps) => {
             />
           )}
         </View>
-      </View>
+      </ScrollView>
     </ScreenBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: 24,
     paddingVertical: 48,
@@ -278,6 +319,25 @@ const styles = StyleSheet.create({
   divider: {
     height: 1,
     marginVertical: 2,
+  },
+  disclosure: {
+    borderWidth: 1,
+    padding: 14,
+    marginBottom: 16,
+  },
+  disclosureHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  disclosureIcon: {
+    marginRight: 6,
+  },
+  disclosureTitle: {
+    flex: 1,
+  },
+  disclosureBody: {
+    lineHeight: 18,
   },
   actions: {
     gap: 10,
