@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import {
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -212,7 +214,14 @@ export const PermissionsScreen = ({ onComplete }: PermissionsScreenProps) => {
             {'• '}
             <Text style={{ fontWeight: fontWeight.semibold, color: colors.text.primary }}>{'Compartición: '}</Text>
             {'los datos de ubicación y asistencia se comparten con tu empresa empleadora afiliada a Grupo Misol. No se usan para publicidad.\n\n'}
-            {'Para más información consulta nuestra Política de Privacidad en grupomisol.com'}
+            {'Para más información consulta nuestra '}
+            <Text
+              style={{ fontWeight: fontWeight.semibold, color: colors.status.info, textDecorationLine: 'underline' }}
+              onPress={() => Linking.openURL('https://www.grupomisol.com/politica-de-privacidad-gestor/')}
+            >
+              {'Política de Privacidad'}
+            </Text>
+            {'.'}
           </Text>
         </View>
 
