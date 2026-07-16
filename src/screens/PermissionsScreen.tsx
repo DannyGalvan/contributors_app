@@ -207,7 +207,7 @@ export const PermissionsScreen = ({ onComplete }: PermissionsScreenProps) => {
             {'Al conceder los permisos, esta app recopilará y usará tus datos de la siguiente manera:\n\n'}
             {'• '}
             <Text style={{ fontWeight: fontWeight.semibold, color: colors.text.primary }}>{'Ubicación GPS (latitud y longitud): '}</Text>
-            {'se recopila para verificar tu asistencia en proyectos y centros de trabajo, incluso cuando la app está en segundo plano.\n\n'}
+            {'se recopila únicamente cuando registras tu entrada o salida, para verificar que te encuentras en el área autorizada del proyecto.\n\n'}
             {'• '}
             <Text style={{ fontWeight: fontWeight.semibold, color: colors.text.primary }}>{'Cámara: '}</Text>
             {'se usa únicamente para escanear códigos QR de proyectos. No se almacenan imágenes.\n\n'}

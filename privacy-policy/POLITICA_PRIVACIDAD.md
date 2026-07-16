@@ -1,6 +1,6 @@
 # Política de Privacidad — Gestor by Grupo Misol
 
-**Última actualización:** 29 de junio de 2026  
+**Última actualización:** 16 de julio de 2026  
 **Versión:** 1.0  
 **Aplicación:** Gestor  
 **Desarrollador / Responsable:** Grupo Misol  
@@ -62,8 +62,7 @@ Al registrarse o usar la Aplicación, recopilamos:
 
 La Aplicación recopila datos de **ubicación GPS (latitud y longitud)** en los siguientes contextos:
 
-- **Registro de entrada y salida (marcaje):** cuando el colaborador registra su asistencia a un proyecto o centro de trabajo, se captura su ubicación para verificar que se encuentra dentro del área autorizada.
-- **Ubicación en segundo plano:** la Aplicación solicita permiso de `ACCESS_BACKGROUND_LOCATION` para permitir registros de marcaje incluso cuando la pantalla está bloqueada o la app no está en primer plano, garantizando la precisión del control de asistencia.
+- **Registro de entrada y salida (marcaje):** cuando el colaborador registra su asistencia a un proyecto o centro de trabajo, se captura su ubicación para verificar que se encuentra dentro del área autorizada. La ubicación solo se accede mientras la app está en primer plano y el usuario activa el marcaje.
 
 > **Importante:** la ubicación GPS solo se utiliza con fines de control de asistencia laboral. No se vende ni comparte con terceros para publicidad u otros fines comerciales.
 
@@ -132,9 +131,8 @@ La Aplicación solicita los siguientes permisos en Android:
 |---|---|
 | `INTERNET` | Comunicación con los servidores de Grupo Misol para sincronizar datos |
 | `ACCESS_NETWORK_STATE` | Detectar estado de la red antes de registrar marcajes |
-| `ACCESS_FINE_LOCATION` | Capturar ubicación GPS precisa al registrar entrada/salida |
+| `ACCESS_FINE_LOCATION` | Capturar ubicación GPS precisa al registrar entrada/salida (solo en primer plano) |
 | `ACCESS_COARSE_LOCATION` | Ubicación aproximada como alternativa cuando GPS fino no está disponible |
-| `ACCESS_BACKGROUND_LOCATION` | Permitir registro de marcaje en segundo plano |
 | `CAMERA` | Escanear códigos QR de proyectos |
 | `RECORD_AUDIO` | Requerido técnicamente por la biblioteca de cámara; no se graba audio |
 
@@ -242,31 +240,13 @@ Cada servicio de terceros tiene su propia política de privacidad. Le recomendam
 
 ---
 
-## 14. Ubicación en Segundo Plano — Declaración Específica
-
-Dado que la Aplicación solicita el permiso `ACCESS_BACKGROUND_LOCATION`, declaramos expresamente:
-
-**¿Por qué se usa?**  
-Para permitir que los colaboradores registren su asistencia (marcaje de entrada/salida) incluso cuando la pantalla del dispositivo está apagada o la Aplicación no está en primer plano, garantizando la fiabilidad del control de asistencia.
-
-**¿Con qué frecuencia se accede?**  
-Solo cuando el colaborador activa un marcaje de asistencia.
-
-**¿Se comparte con terceros?**  
-Solo con la empresa empleadora del colaborador, como parte del registro de asistencia.
-
-**¿Se puede desactivar?**  
-Sí. Puede revocar este permiso en cualquier momento desde Configuración → Aplicaciones → Gestor → Permisos → Ubicación. Sin embargo, esto puede limitar la funcionalidad de registro de asistencia.
-
----
-
-## 15. Menores de Edad
+## 14. Menores de Edad
 
 La Aplicación **no está dirigida a personas menores de 18 años**. No recopilamos conscientemente datos de menores. Si detectamos que hemos recopilado datos de un menor sin consentimiento verificable, eliminaremos dicha información de inmediato.
 
 ---
 
-## 16. Cambios a Esta Política de Privacidad
+## 15. Cambios a Esta Política de Privacidad
 
 Podemos actualizar esta Política de Privacidad periódicamente. Cuando realicemos cambios significativos:
 
@@ -277,13 +257,13 @@ El uso continuo de la Aplicación después de los cambios implica la aceptación
 
 ---
 
-## 17. Ley Aplicable y Jurisdicción
+## 16. Ley Aplicable y Jurisdicción
 
 Esta Política de Privacidad se rige por las leyes de la República de Guatemala y las leyes aplicables de los países donde opera Grupo Misol. Cualquier disputa relacionada con el tratamiento de datos personales será resuelta conforme a la legislación local aplicable.
 
 ---
 
-## 18. Contacto
+## 17. Contacto
 
 Si tiene preguntas, inquietudes o solicitudes relacionadas con esta Política de Privacidad, contáctenos:
 
