@@ -71,7 +71,12 @@ export const InOutScreen = () => {
   return (
     <ScreenBackground>
       <PermissionGate permissionKey="location">
-        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scroll}
+          showsVerticalScrollIndicator
+          nestedScrollEnabled
+        >
           <InOutForm />
         </ScrollView>
       </PermissionGate>
@@ -80,6 +85,9 @@ export const InOutScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+  },
   scroll: {
     paddingTop: 16,
     paddingHorizontal: 0,

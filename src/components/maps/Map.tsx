@@ -125,6 +125,10 @@ export const Map = ({ mapStyles }: Props) => {
         showsMyLocationButton={false}
         loadingEnabled
         loadingIndicatorColor={colors.brand.primary}
+        scrollEnabled={false}
+        zoomEnabled={false}
+        rotateEnabled={false}
+        pitchEnabled={false}
         onTouchStart={() => (follow.current = false)}
       >
         <Marker
