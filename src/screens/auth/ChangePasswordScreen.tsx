@@ -1,22 +1,20 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Title } from '@components/pure/Title';
+import { StyleSheet, Text, View } from 'react-native';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+
+import { Logo } from '@components/Icons/Logo';
 import { InputForm } from '@components/input/InputForm';
-import { appColors } from '@styles/appColors';
-import { appStyles } from '@styles/appStyles';
 import { TouchableButton } from '@components/button/TouchableButton';
 import { ResponseMessage } from '@components/pure/ResponseMessage';
-import { Logo } from '@components/Icons/Logo';
+import { FormScreen } from '@components/layout/FormScreen';
+import { GlassCard } from '@components/layout/GlassCard';
+import { useTheme } from '@hooks/useTheme';
 import { ErrorObject, useForm } from '@hooks/useForm';
+
+import { AuthParamList } from '../../types/IAuthNavigator';
 import { ChangePasswordShema } from '@validations/ChangePasswordValidations';
 import { dispatchAlert, handleOneLevelZodError } from '@utils/converted';
-import {
-  changePasswordService,
-  confirmTokenService,
-} from '../../services/authService';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { AuthParamList } from '../../types/IAuthNavigator';
-import { ScrollView } from 'react-native-gesture-handler';
+import { changePasswordService, confirmTokenService } from '../../services/authService';
 
 const initialForm: ChangePasswordRequest = {
   token: '',
@@ -26,158 +24,127 @@ const initialForm: ChangePasswordRequest = {
 
 const ChangePasswordValidations = (form: ChangePasswordRequest) => {
   let errors: ErrorObject = {};
-
   const parce = ChangePasswordShema.safeParse(form);
-
   if (!parce.success) errors = handleOneLevelZodError(parce.error);
-
   return errors;
 };
 
 export const ChangePasswordScreen = () => {
   const { navigate } = useNavigation<NavigationProp<AuthParamList>>();
+  const { colors, fontSize, fontWeight } = useTheme();
 
   const sendForm = async (form: ChangePasswordRequest) => {
     const responseToken = await confirmTokenService(form.token);
-
     if (!responseToken.success) {
-      dispatchAlert({
-        title: 'Error al intentar recuperar contraseña',
-        message: responseToken.message,
-      });
-
+      dispatchAlert({ title: 'Error al intentar recuperar contraseña', message: responseToken.message });
       return responseToken;
     }
-
     try {
       const response = await changePasswordService(form);
-
       if (!response.success) {
-        dispatchAlert({
-          title: 'Error al intentar recuperar contraseña',
-          message: response.message,
-        });
+        dispatchAlert({ title: 'Error al intentar recuperar contraseña', message: response.message });
       } else {
-        dispatchAlert({
-          title: 'Exito',
-          message: 'Contraseña cambiada con exito',
-        });
+        dispatchAlert({ title: 'Exito', message: 'Contraseña cambiada con exito' });
         navigate('Login');
       }
-
       return response;
     } catch (error) {
-      console.log('error', error);
-      return {
-        success: false,
-        message: 'Error al intentar recuperar contraseña',
-        data: null,
-      };
+      return { success: false, message: 'Error al intentar recuperar contraseña', data: null };
     }
   };
 
-  const {
-    form,
-    errors,
-    handleChange,
-    handleSubmit,
-    loading,
-    message,
-    success,
-  } = useForm(initialForm, ChangePasswordValidations, sendForm);
+  const { form, errors, handleChange, handleSubmit, loading, message, success } =
+    useForm(initialForm, ChangePasswordValidations, sendForm);
 
   return (
-    <ScrollView contentContainerStyle={styles.screen} scrollEnabled>
-      <Title text="Cambiar contraseña" />
-
-      <View style={styles.containerLogo}>
+    <FormScreen keyboardOffset={56} contentStyle={styles.content}>
+      <View style={styles.logoContainer}>
         <Logo isVisible={false} style={styles.logo} />
       </View>
 
-      <InputForm
-        containerStyles={styles.input}
-        name="token"
-        errorMessage={errors?.token}
-        colorText={appStyles.textDark}
-        placeholderTextColor={appColors.gray}
-        colorInput={appStyles.inputLight}
-        label="Token"
-        value={form.token}
-        onChangeText={(text: string) => handleChange('token', text)}
-        placeholder="Ingrese su token"
-        icon="finger-print"
-        iconColor={appColors.sky}
-        secureTextEntry={false}
-      />
+      <Text style={[styles.title, { color: colors.text.inverse, fontSize: fontSize['2xl'], fontWeight: fontWeight.bold }]}>
+        Cambiar contraseña
+      </Text>
+      <Text style={[styles.subtitle, { color: colors.text.inverseSecondary, fontSize: fontSize.sm }]}>
+        Ingresa el token recibido y tu nueva contraseña
+      </Text>
 
-      <InputForm
-        containerStyles={styles.input}
-        name="password"
-        errorMessage={errors?.password}
-        colorText={appStyles.textDark}
-        placeholderTextColor={appColors.gray}
-        colorInput={appStyles.inputLight}
-        label="Contraseña"
-        value={form.password}
-        onChangeText={(text: string) => handleChange('password', text)}
-        placeholder="Ingrese su contraseña"
-        secureTextEntry={true}
-        icon="eye"
-        iconColor={appColors.sky}
-      />
+      <GlassCard style={styles.card} intensity="medium">
+        <InputForm
+          name="token"
+          label="Token"
+          placeholder="Ingrese su token"
+          value={form.token}
+          onChangeText={(text) => handleChange('token', text)}
+          errorMessage={errors?.token}
+          secureTextEntry={false}
+          icon="finger-print-outline"
+          keyboardType="numeric"
+        />
+        <InputForm
+          name="password"
+          label="Contraseña"
+          placeholder="Ingrese su nueva contraseña"
+          value={form.password}
+          onChangeText={(text) => handleChange('password', text)}
+          errorMessage={errors?.password}
+          secureTextEntry={true}
+          icon="eye-outline"
+        />
+        <InputForm
+          name="confirmPassword"
+          label="Confirmar Contraseña"
+          placeholder="Confirme su nueva contraseña"
+          value={form.confirmPassword}
+          onChangeText={(text) => handleChange('confirmPassword', text)}
+          errorMessage={errors?.confirmPassword}
+          secureTextEntry={true}
+          icon="eye-outline"
+        />
 
-      <InputForm
-        containerStyles={styles.input}
-        name="confirmPassword"
-        errorMessage={errors?.confirmPassword}
-        colorText={appStyles.textDark}
-        placeholderTextColor={appColors.gray}
-        colorInput={appStyles.inputLight}
-        label="Confirmar Contraseña"
-        value={form.confirmPassword}
-        onChangeText={(text: string) => handleChange('confirmPassword', text)}
-        placeholder="Confirme su contraseña"
-        secureTextEntry={true}
-        icon="eye"
-        iconColor={appColors.sky}
-      />
+        <TouchableButton
+          variant="cta"
+          title="Cambiar Contraseña"
+          icon="lock-closed-outline"
+          onPress={handleSubmit}
+          loading={loading}
+          fullWidth
+          styles={styles.btn}
+        />
 
-      <TouchableButton
-        styles={styles.button}
-        textClassName="text-lg text-white font-bold"
-        onPress={handleSubmit}
-        title="Cambiar Contraseña"
-        icon="log-in"
-      />
-
-      <ResponseMessage message={message} success={success} loading={loading} />
-    </ScrollView>
+        <ResponseMessage message={message} success={success} loading={false} />
+      </GlassCard>
+    </FormScreen>
   );
 };
 
 const styles = StyleSheet.create({
-  screen: {
+  content: {
     justifyContent: 'center',
     alignItems: 'center',
   },
-  button: {
-    backgroundColor: appColors.warning,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
+  logoContainer: {
+    marginBottom: 14,
     alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  input: {
-    width: '80%',
-    marginVertical: 10,
-  },
-  containerLogo: {
-    margin: 20,
   },
   logo: {
-    width: 150,
-    height: 150,
+    width: 80,
+    height: 80,
+    borderRadius: 16,
+  },
+  title: {
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  subtitle: {
+    textAlign: 'center',
+    marginBottom: 20,
+    letterSpacing: 0.3,
+  },
+  card: {
+    width: '100%',
+  },
+  btn: {
+    marginTop: 12,
   },
 });

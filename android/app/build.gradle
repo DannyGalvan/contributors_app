@@ -80,8 +80,17 @@ def localProperties = new Properties()
 def localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
     localProperties.load(new FileInputStream(localPropertiesFile))
-}else {
-    throw GradleException("local.properties file not found")
+} else {
+    throw new GradleException("local.properties file not found")
+}
+
+def loadEnvFile = { String buildType ->
+    def props = new Properties()
+    def envFile = rootProject.file("../.env.${buildType}")
+    if (envFile.exists()) {
+        props.load(new FileInputStream(envFile))
+    }
+    return props
 }
 
 android {
@@ -94,9 +103,9 @@ android {
         applicationId "com.servicioappgrupomisol.contributors_app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
-        versionName "1.0.1"
-        manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = localProperties.getProperty("GOOGLE_MAPS_API_KEY", "")
+        def releaseEnv = loadEnvFile("release")
+        versionCode releaseEnv.getProperty("VERSION_CODE", "1").toInteger()
+        versionName releaseEnv.getProperty("APP_VERSION", "1.0.0")
     }
     signingConfigs {
         debug {
@@ -117,13 +126,13 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
+            manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = loadEnvFile("debug").getProperty("MAPS_API_KEY", "")
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
             signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = loadEnvFile("release").getProperty("MAPS_API_KEY", "")
         }
     }
     packagingOptions {      

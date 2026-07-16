@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useResponse } from '@hooks/useResponse';
 import { ApiResponse } from '@app-types/ApiResponse';
@@ -12,31 +12,33 @@ export interface ErrorObject {
 
 export const useForm = <T, U>(
   initialForm: T,
-  validateForm: (form: T) => ErrorObject,
+  validateForm: (form: T) => Promise<ErrorObject> | ErrorObject,
   peticion: (form: T) => Promise<ApiResponse<U | ValidationFailure[]>>,
   reboot?: boolean,
 ) => {
   const { setError } = useErrorsStore();
   const [form, setForm] = useState<T>(initialForm);
+  const formRef = useRef<T>(initialForm);
   const [loading, setLoading] = useState<boolean>(false);
   const { s, set, t, u, m, setU } = useResponse<U, ValidationFailure[]>();
 
   useEffect(() => {
+    formRef.current = initialForm;
     setForm(initialForm);
   }, [initialForm]);
 
-  const handleChange = (field: string, value: any) => {
-    const newForm = {
-      ...form,
-      [field]: value,
-    };
+  const handleChange = async (field: string, value: any) => {
+    const newForm = { ...formRef.current, [field]: value };
+    formRef.current = newForm;
 
-    setForm(newForm);
-    setU(validateForm(newForm));
+    setForm(prev => ({ ...prev, [field]: value }));
+
+    const valErr = await validateForm(newForm);
+    setU(valErr);
   };
 
-  const handleBlur = (field: string, value: any) => {
-    handleChange(field, value);
+  const handleBlur = async (field: string, value: any) => {
+    await handleChange(field, value);
   };
 
   const handleSubmit = async () => {
@@ -46,7 +48,7 @@ export const useForm = <T, U>(
       message: null,
     });
 
-    const valErr = validateForm(form);
+    const valErr = await validateForm(form);
     setU(valErr);
     setLoading(true);
 
@@ -55,7 +57,10 @@ export const useForm = <T, U>(
         const response = await peticion(form);
 
         if (response.success) {
-          reboot && setForm(initialForm);
+          if (reboot) {
+            formRef.current = initialForm;
+            setForm(initialForm);
+          }
         } else {
           set(response);
         }

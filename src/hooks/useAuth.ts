@@ -15,6 +15,9 @@ export const useAuth = () => {
     idUser: authState?.idUser,
     employeeCode: authState?.employeeCode,
     companyCode: authState?.companyCode,
+    companyName: authState?.companyName,
+    countryId: authState?.countryId,
+    countryName: authState?.countryName,
     isLoading: isLoadingAuth,
     initializeAuth,
   };

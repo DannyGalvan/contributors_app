@@ -6,8 +6,9 @@ import {
   PERMISSIONS,
   request,
 } from 'react-native-permissions';
+import { Platform } from 'react-native';
 
-export type permissionsKey = 'location' | 'camera';
+export type PermissionKey = 'location' | 'camera';
 
 export type PermissionStatus =
   | 'granted'
@@ -16,77 +17,100 @@ export type PermissionStatus =
   | 'blocked'
   | 'limited';
 
-export type PermissionState = {
-  [key in permissionsKey]: PermissionStatus;
+export type PermissionsState = Record<PermissionKey, PermissionStatus>;
+
+const ANDROID_PERMISSION_MAP: Record<PermissionKey, Permission> = {
+  location: PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION,
+  camera: PERMISSIONS.ANDROID.CAMERA,
 };
 
-export const permissionsInitialState: PermissionState = {
+const IOS_PERMISSION_MAP: Record<PermissionKey, Permission> = {
+  location: PERMISSIONS.IOS.LOCATION_WHEN_IN_USE,
+  camera: PERMISSIONS.IOS.CAMERA,
+};
+
+const PERMISSION_MAP = Platform.OS === 'ios' ? IOS_PERMISSION_MAP : ANDROID_PERMISSION_MAP;
+
+const initialState: PermissionsState = {
   location: 'unavailable',
   camera: 'unavailable',
 };
 
-interface PermissionStoreState {
-  permissions: PermissionState;
-  isPendingPermissions: boolean;
-  requestPermission: (permissiona: Permission, name: permissionsKey) => void;
-  queryPermissions: (permissiona: Permission, name: permissionsKey) => void;
-  askPermission: (permissiona: Permission) => void;
-  checkPermission: (permissiona: Permission) => void;
+interface PermissionsStore {
+  permissions: PermissionsState;
+  isChecking: boolean;
+
+  /** Check a single permission without requesting it. Returns its status. */
+  checkPermission: (key: PermissionKey) => Promise<PermissionStatus>;
+
+  /** Request a single permission. Returns the resulting status. */
+  requestPermission: (key: PermissionKey) => Promise<PermissionStatus>;
+
+  /** Check all permissions and update the store. */
+  checkAll: () => Promise<void>;
+
+  /** Open OS settings (call only after explaining why to the user). */
+  openAppSettings: () => void;
 }
 
-export const usePermissionsStore = create<PermissionStoreState>((set, get) => ({
-  permissions: permissionsInitialState,
-  isPendingPermissions: false,
-  requestPermission: async (permissionsa: Permission, name: permissionsKey) => {
-    set({ isPendingPermissions: true });
+export const usePermissionsStore = create<PermissionsStore>((set) => ({
+  permissions: initialState,
+  isChecking: false,
 
-    const requestPermission = await request(permissionsa);
-    if (requestPermission === 'blocked') {
-      openSettings();
-    }
-
-    set({
-      permissions: { ...get().permissions, [name]: requestPermission },
-      isPendingPermissions: false,
-    });
-  },
-  askPermission: async (permissionsa: Permission) => {
-    switch (permissionsa) {
-      case PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION:
-        get().requestPermission(permissionsa, 'location');
-        break;
-      case PERMISSIONS.ANDROID.CAMERA:
-        get().requestPermission(permissionsa, 'camera');
-        break;
-      default:
-        set({ permissions: permissionsInitialState });
-        break;
+  checkPermission: async (key: PermissionKey): Promise<PermissionStatus> => {
+    set({ isChecking: true });
+    try {
+      const permission = PERMISSION_MAP[key];
+      const result = await check(permission);
+      const status = result as PermissionStatus;
+      set((s) => ({
+        permissions: { ...s.permissions, [key]: status },
+        isChecking: false,
+      }));
+      return status;
+    } catch {
+      set({ isChecking: false });
+      return 'unavailable';
     }
   },
-  queryPermissions: async (permissionsa: Permission, name: permissionsKey) => {
-    set({ isPendingPermissions: true });
 
-    const checkPermission = await check(permissionsa);
-    if (checkPermission === 'blocked') {
-      openSettings();
+  requestPermission: async (key: PermissionKey): Promise<PermissionStatus> => {
+    set({ isChecking: true });
+    try {
+      const permission = PERMISSION_MAP[key];
+      const result = await request(permission);
+      const status = result as PermissionStatus;
+      set((s) => ({
+        permissions: { ...s.permissions, [key]: status },
+        isChecking: false,
+      }));
+      return status;
+    } catch {
+      set({ isChecking: false });
+      return 'unavailable';
     }
-
-    set({
-      permissions: { ...get().permissions, [name]: checkPermission },
-      isPendingPermissions: false,
-    });
   },
-  checkPermission: async (permissionsa: Permission) => {
-    switch (permissionsa) {
-      case PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION:
-        get().queryPermissions(permissionsa, 'location');
-        break;
-      case PERMISSIONS.ANDROID.CAMERA:
-        get().queryPermissions(permissionsa, 'camera');
-        break;
-      default:
-        set({ permissions: permissionsInitialState });
-        break;
+
+  checkAll: async (): Promise<void> => {
+    set({ isChecking: true });
+    try {
+      const [locationResult, cameraResult] = await Promise.all([
+        check(PERMISSION_MAP.location),
+        check(PERMISSION_MAP.camera),
+      ]);
+      set({
+        permissions: {
+          location: locationResult as PermissionStatus,
+          camera: cameraResult as PermissionStatus,
+        },
+        isChecking: false,
+      });
+    } catch {
+      set({ isChecking: false });
     }
+  },
+
+  openAppSettings: () => {
+    openSettings();
   },
 }));

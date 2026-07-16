@@ -14,6 +14,9 @@ export interface AuthState {
   idUser: number;
   employeeCode: string;
   companyCode: number;
+  companyName: string;
+  countryId: number;
+  countryName: string;
   startYearToWork: number;
   startDateToWork: string;
 }
@@ -25,6 +28,9 @@ export const InitialAuthState: AuthState = {
   idUser: 0,
   employeeCode: '',
   companyCode: 0,
+  companyName: '',
+  countryId: 0,
+  countryName: '',
   startYearToWork: 0,
   startDateToWork: '',
 };
@@ -35,6 +41,9 @@ export interface SignIn {
   idUser: number;
   employeeCode: string;
   companyCode: number;
+  companyName: string;
+  countryId: number;
+  countryName: string;
   startYearToWork: number;
   startDateToWork: string;
 }
@@ -47,10 +56,10 @@ interface AuthStoreState {
   logout: () => void;
 }
 
-export const useAuthStore = create<AuthStoreState>((set) => ({
+export const useAuthStore = create<AuthStoreState>(set => ({
   authState: InitialAuthState,
-  isLoadingAuth: false,
-  signIn: (state) => {
+  isLoadingAuth: true,
+  signIn: state => {
     setAuthorizationHeader(state.token);
     const newState = { ...state, isLoggedIn: true };
     set({ authState: newState });
@@ -59,14 +68,18 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
   initializeAuth: async () => {
     set({ isLoadingAuth: true });
 
-    const data = await getSessionStorage<AuthState>(StorageKey.auth);
+    try {
+      const data = await getSessionStorage<AuthState>(StorageKey.auth);
 
-    if (data) {
-      setAuthorizationHeader(data.token);
-      set({ authState: { ...data } });
+      if (data) {
+        setAuthorizationHeader(data.token);
+        set({ authState: { ...data } });
+      }
+    } catch (error) {
+      console.log('Error initializing auth:', error);
+    } finally {
+      set({ isLoadingAuth: false });
     }
-
-    set({ isLoadingAuth: false });
   },
   logout: () => {
     setAuthorizationHeader('');

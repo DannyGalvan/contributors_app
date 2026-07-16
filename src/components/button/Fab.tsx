@@ -7,46 +7,63 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useTheme } from '@hooks/useTheme';
 
 interface Props {
   iconName: string;
   onPress: () => void;
   style?: StyleProp<ViewStyle>;
   isLoading?: boolean;
+  size?: 'sm' | 'md' | 'lg';
+  color?: string;
 }
 
-export const Fab = ({ iconName, onPress, style, isLoading }: Props) => {
+export const Fab = ({
+  iconName,
+  onPress,
+  style,
+  isLoading,
+  size = 'md',
+  color,
+}: Props) => {
+  const { colors, shadows } = useTheme();
+
+  const sizeMap = { sm: 36, md: 48, lg: 58 };
+  const iconSizeMap = { sm: 18, md: 22, lg: 28 };
+  const dim = sizeMap[size];
+  const iconSz = iconSizeMap[size];
+
   return (
     <TouchableOpacity
       activeOpacity={0.8}
       onPress={onPress}
-      style={[styles.blackButton, style]}
+      style={[
+        styles.button,
+        {
+          width: dim,
+          height: dim,
+          borderRadius: dim / 2,
+          backgroundColor: color ?? colors.brand.primary,
+          borderColor: colors.border.glassStrong,
+          ...shadows.lg,
+        },
+        style,
+      ]}
     >
-      {!isLoading ? (
-        <Icon name={iconName} size={35} color="white" />
+      {isLoading ? (
+        <ActivityIndicator color={colors.text.inverse} size="small" />
       ) : (
-        <ActivityIndicator color="white" size={30} />
+        <Icon name={iconName} size={iconSz} color={colors.text.inverse} />
       )}
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  blackButton: {
+  button: {
     zIndex: 9999,
-    height: 50,
-    width: 50,
-    backgroundColor: 'black',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 25,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 8,
-    },
-    shadowOpacity: 0.46,
-    shadowRadius: 11.14,
-    elevation: 17,
+    borderWidth: 1,
   },
 });

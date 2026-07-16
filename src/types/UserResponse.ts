@@ -5,6 +5,7 @@ export interface UserResponse {
   square: string;
   employeeCode: number;
   businessCode: number;
+  countryId: number;
   entryDate: string;
   recoveryToken: string;
   state: number;

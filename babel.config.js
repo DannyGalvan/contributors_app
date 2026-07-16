@@ -1,5 +1,6 @@
 module.exports = function (api) {
   api.cache(false);
+  const envApp = process.env.ENV_APP || 'debug';
   return {
     presets: ['module:@react-native/babel-preset'],
     plugins: [
@@ -7,14 +8,10 @@ module.exports = function (api) {
       [
         'module:react-native-dotenv',
         {
-          envName: 'ENV_APP',
           moduleName: '@env',
-          path: '.env',
-          blocklist: null,
-          allowlist: null,
+          path: `.env.${envApp}`,
           safe: false,
-          allowUndefined: true,
-          verbose: false,
+          allowUndefined: false,
         },
       ],
       [
@@ -39,6 +36,7 @@ module.exports = function (api) {
             '@database': './src/database',
             '@validations': './src/validations',
             '@observables': './src/observables',
+            '@theme': './src/theme',
           },
         },
       ],

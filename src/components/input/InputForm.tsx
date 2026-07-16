@@ -1,29 +1,37 @@
 import React from 'react';
-import { Text, StyleSheet, TextInput, View, KeyboardType } from 'react-native';
-import { appStyles } from '@styles/appStyles';
-import { appColors } from '@styles/appColors';
+import {
+  Text,
+  StyleSheet,
+  TextInput,
+  View,
+  KeyboardType,
+  Animated,
+} from 'react-native';
 import { TouchableButton } from '@components/button/TouchableButton';
 import { useToggle } from '@hooks/useToggle';
+import { useTheme } from '@hooks/useTheme';
 
 interface Props {
   label: string;
   name?: string;
   placeholder: string;
-  onChangeText?: any;
+  onChangeText?: (text: string, name?: string) => void;
   value: string;
   errorMessage?: string;
   secureTextEntry: boolean;
-  onFocus?: any;
+  onFocus?: () => void;
+  multiline?: boolean;
+  keyboardType?: KeyboardType;
+  readonly?: boolean;
+  icon?: string;
+  containerStyles?: any;
+  style?: any;
+  // Legacy props kept for backward compat (ignored, theme handles colors)
   colorText?: any;
   colorInput?: any;
   placeholderTextColor?: string;
-  containerStyles?: any;
-  multiline?: boolean;
-  keyboardType?: KeyboardType;
-  style?: any;
-  readonly?: boolean;
-  icon?: string;
   iconColor?: string;
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
 }
 
 export const InputForm = ({
@@ -35,75 +43,128 @@ export const InputForm = ({
   onFocus,
   errorMessage,
   name,
-  colorText,
-  colorInput,
-  placeholderTextColor,
-  containerStyles,
   multiline,
   keyboardType,
-  style,
   readonly,
   icon,
-  iconColor,
+  containerStyles,
+  autoCapitalize,
 }: Props) => {
+  const { colors, radius, fontSize, fontWeight } = useTheme();
   const { isToggled, toggle } = useToggle();
+  const [isFocused, setIsFocused] = React.useState(false);
+
+  const borderColor = errorMessage
+    ? colors.text.error
+    : isFocused
+    ? colors.border.inputFocused
+    : colors.border.input;
+
   return (
     <View style={[styles.container, containerStyles]}>
-      <Text style={colorText ? colorText : appStyles.textDark}>{label}</Text>
-      <View className="flex flex-row">
+      <Text
+        style={[
+          styles.label,
+          {
+            color: errorMessage ? colors.text.error : colors.text.secondary,
+            fontSize: fontSize.sm,
+            fontWeight: fontWeight.medium,
+          },
+        ]}
+      >
+        {label}
+      </Text>
+
+      <View
+        style={[
+          styles.inputWrapper,
+          {
+            backgroundColor: colors.surface.input,
+            borderColor,
+            borderRadius: radius.md,
+          },
+        ]}
+      >
         <TextInput
-          className={'w-full'}
-          keyboardType={keyboardType ?? 'default'}
           style={[
             styles.input,
-            colorInput ? colorInput : appStyles.inputDark,
-            style,
+            {
+              color: colors.text.primary,
+              fontSize: fontSize.base,
+            },
           ]}
+          keyboardType={keyboardType ?? 'default'}
           placeholder={placeholder}
-          onChangeText={(text) => onChangeText(text, name)}
+          placeholderTextColor={colors.text.muted}
+          onChangeText={text => onChangeText?.(text, name)}
           value={value}
-          placeholderTextColor={placeholderTextColor ?? appColors.opacity}
           secureTextEntry={secureTextEntry && !isToggled}
-          onFocus={onFocus}
+          onFocus={() => {
+            setIsFocused(true);
+            onFocus?.();
+          }}
+          onBlur={() => setIsFocused(false)}
           multiline={multiline}
-          numberOfLines={8}
+          numberOfLines={multiline ? 4 : 1}
           textBreakStrategy="highQuality"
           readOnly={readonly}
+          autoCapitalize={autoCapitalize}
         />
         {icon && (
           <TouchableButton
-            iconColor={iconColor ?? appColors.white}
-            styles={styles.refreshButton}
+            variant="ghost"
             icon={!secureTextEntry ? icon : isToggled ? 'eye' : 'eye-off'}
-            title=""
+            iconColor={isFocused ? colors.brand.primary : colors.icon.secondary}
+            iconSize={20}
+            styles={styles.iconButton}
             onPress={toggle}
           />
         )}
       </View>
-      <View>
-        <Text style={[appStyles.textDanger, styles.textCenter]}>
+
+      {errorMessage ? (
+        <Text
+          style={[
+            styles.error,
+            { color: colors.text.error, fontSize: fontSize.xs },
+          ]}
+        >
           {errorMessage}
         </Text>
-      </View>
+      ) : null}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'column',
     width: '100%',
-    marginVertical: 5,
+    marginVertical: 6,
+  },
+  label: {
+    marginBottom: 6,
+    marginLeft: 2,
+    letterSpacing: 0.3,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    paddingHorizontal: 14,
+    minHeight: 50,
   },
   input: {
-    height: 50,
+    flex: 1,
+    paddingVertical: 12,
   },
-  textCenter: {
-    textAlign: 'center',
+  iconButton: {
+    padding: 4,
+    backgroundColor: 'transparent',
+    shadowOpacity: 0,
+    elevation: 0,
   },
-  refreshButton: {
-    padding: 5,
-    position: 'absolute',
-    right: 10,
+  error: {
+    marginTop: 4,
+    marginLeft: 2,
   },
 });

@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 import { OvertimeRequest } from '@app-types/OvertimeRequest';
 import { ErrorObject, useForm } from '@hooks/useForm';
@@ -7,21 +9,19 @@ import { OvertimeShemaOmit } from '@validations/OvertimeValidations';
 import { dispatchAlert, handleOneLevelZodError } from '@utils/converted';
 import { InputDateTime } from '@components/input/InputDateTime';
 import { InputForm } from '@components/input/InputForm';
-import { appStyles } from '@styles/appStyles';
-import { appColors } from '@styles/appColors';
+import { InputSelect } from '@components/input/InputSelect';
 import { TouchableButton } from '@components/button/TouchableButton';
 import { ResponseMessage } from '@components/pure/ResponseMessage';
+import { LabelText } from '@components/pure/LabelText';
+import { FormScreen } from '@components/layout/FormScreen';
+import { GlassCard } from '@components/layout/GlassCard';
+import { useTheme } from '@hooks/useTheme';
+import { useAuth } from '@hooks/useAuth';
+import { useUpdateLocations } from '@hooks/useUpdateLocations';
 import { createOvertime } from '@database/repository/overtimeRepository';
 import { Overtime } from '@database/models/Overtime';
-import { useAuth } from '@hooks/useAuth';
-import { LabelText } from '@components/pure/LabelText';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { formatString, formatStringDate } from '@config/constants';
-import { Title } from '@components/pure/Title';
-import { InputSelect } from '@components/input/InputSelect';
 import { getAllLocationStores } from '@database/repository/locationStoreRepository';
-import { useUpdateLocations } from '@hooks/useUpdateLocations';
 
 const initialOvertime: OvertimeRequest = {
   date: format(new Date(), formatStringDate),
@@ -35,20 +35,16 @@ const initialOvertime: OvertimeRequest = {
 
 const overtimeValidations = (overtime: OvertimeRequest) => {
   let errors: ErrorObject = {};
-
   const parce = OvertimeShemaOmit.safeParse(overtime);
-
-  if (!parce.success) {
-    errors = handleOneLevelZodError(parce.error);
-  }
-
+  if (!parce.success) errors = handleOneLevelZodError(parce.error);
   return errors;
 };
 
 export const CreateOvertimeScreen = () => {
+  const { colors, fontSize, fontWeight } = useTheme();
   const { idUser, employeeCode } = useAuth();
-  const { updateLocations, locationString, setLocationString } =
-    useUpdateLocations();
+  const { updateLocations } = useUpdateLocations();
+  const [locationString, setLocationString] = useState('');
 
   const sendForm = async (overtime: OvertimeRequest) => {
     const overtimeInsert: Overtime = {
@@ -70,10 +66,7 @@ export const CreateOvertimeScreen = () => {
         message: 'Horas extras creadas correctamente',
       });
     } else {
-      dispatchAlert({
-        title: 'Error',
-        message: response.message,
-      });
+      dispatchAlert({ title: 'Error', message: response.message });
     }
 
     return response;
@@ -90,122 +83,125 @@ export const CreateOvertimeScreen = () => {
   } = useForm(initialOvertime, overtimeValidations, sendForm, true);
 
   return (
-    <View>
-      <Title text="Crear Horas Extras" />
+    <FormScreen keyboardOffset={56}>
+      <GlassCard style={styles.card} intensity="medium">
+        <LabelText label="Fecha Registro" text={form.date} />
 
-      <LabelText label="Fecha Registro" text={form.date} />
-
-      <InputDateTime
-        label="Fecha y Hora Inicio"
-        name="startTime"
-        icon="timer"
-        mode="datetime"
-        onChange={handleChange}
-        value={form.startTime}
-        parsedFn={(date) =>
-          format(date, formatString, { locale: es })
-            .replace('AM', 'a. m.')
-            .replace('PM', 'p. m.')
-        }
-        errorMessage={errors?.startTime}
-      />
-
-      <InputDateTime
-        label="Fecha y Hora Fin"
-        name="endTime"
-        icon="timer"
-        mode="datetime"
-        onChange={handleChange}
-        value={form.endTime}
-        parsedFn={(date) =>
-          format(date, formatString, { locale: es })
-            .replace('AM', 'a. m.')
-            .replace('PM', 'p. m.')
-        }
-        errorMessage={errors?.endTime}
-      />
-
-      <View>
-        <Text className="text-black font-bold text-xl mx-5">
-          Seleccionar ubicación
-        </Text>
-        <InputSelect
-          entity="ubicación"
-          textInput={'Selecciona una'}
-          queryKey={`locations ${employeeCode}`}
-          onSelect={(item) => {
-            handleChange('locationId', item.Id);
-            setLocationString(item.location);
-          }}
-          onRefresh={updateLocations}
-          queryFn={() => getAllLocationStores()}
-          selector={(data) => data.location}
+        <InputDateTime
+          label="Fecha y Hora Inicio"
+          name="startTime"
+          icon="timer-outline"
+          mode="datetime"
+          onChange={handleChange}
+          value={form.startTime}
+          parsedFn={date =>
+            format(date, formatString, { locale: es })
+              .replace('AM', 'a. m.')
+              .replace('PM', 'p. m.')
+          }
+          errorMessage={errors?.startTime}
         />
-        <Text className="text-red-700 text-sm px-5">{errors?.locationId}</Text>
-      </View>
 
-      <InputForm
-        style={styles.input}
-        containerStyles={styles.inputContainer}
-        name="reason"
-        errorMessage={errors?.reason}
-        colorText={styles.inputLabel}
-        placeholderTextColor={appColors.gray}
-        colorInput={appStyles.inputLight}
-        label="Razón"
-        value={form.reason}
-        onChangeText={(text: string) => handleChange('reason', text)}
-        placeholder="Razón de las horas extras..."
-        secureTextEntry={false}
-        multiline={true}
-      />
+        <InputDateTime
+          label="Fecha y Hora Fin"
+          name="endTime"
+          icon="timer-outline"
+          mode="datetime"
+          onChange={handleChange}
+          value={form.endTime}
+          parsedFn={date =>
+            format(date, formatString, { locale: es })
+              .replace('AM', 'a. m.')
+              .replace('PM', 'p. m.')
+          }
+          errorMessage={errors?.endTime}
+        />
 
-      <View className="flex items-center my-2">
+        <View style={styles.field}>
+          <Text
+            style={[
+              styles.fieldLabel,
+              {
+                color: colors.text.primary,
+                fontSize: fontSize.sm,
+                fontWeight: fontWeight.semibold,
+              },
+            ]}
+          >
+            Ubicación
+          </Text>
+          <InputSelect
+            entity="ubicación"
+            textInput="Selecciona una"
+            queryKey={`locations ${employeeCode}`}
+            onSelect={item => {
+              handleChange('locationId', item.Id);
+              setLocationString(item.location);
+            }}
+            onRefresh={() => updateLocations()}
+            queryFn={() => getAllLocationStores()}
+            selector={data => data.location}
+          />
+          {errors?.locationId ? (
+            <Text
+              style={[
+                styles.errorText,
+                { color: colors.text.error, fontSize: fontSize.xs },
+              ]}
+            >
+              {errors.locationId}
+            </Text>
+          ) : null}
+        </View>
+
+        <InputForm
+          name="reason"
+          label="Razón"
+          placeholder="Razón de las horas extras..."
+          value={form.reason}
+          onChangeText={text => handleChange('reason', text)}
+          errorMessage={errors?.reason}
+          secureTextEntry={false}
+          multiline={true}
+          style={styles.multilineInput}
+        />
+
         <TouchableButton
-          textClassName="text-xl font-bold text-white"
-          className="rounded-xl"
-          styles={styles.sendButton}
-          icon="send"
-          iconColor="white"
+          variant="primary"
           title="Guardar"
+          icon="save-outline"
           onPress={handleSubmit}
+          loading={loading}
+          fullWidth
+          styles={styles.btn}
         />
 
-        <ResponseMessage
-          message={message}
-          success={success}
-          loading={loading}
-        />
-      </View>
-    </View>
+        <ResponseMessage message={message} success={success} loading={false} />
+      </GlassCard>
+    </FormScreen>
   );
 };
 
 const styles = StyleSheet.create({
-  inputLabel: {
-    color: appColors.black,
-    fontSize: 19,
-    fontWeight: 'bold',
+  card: {
+    width: '100%',
   },
-  inputContainer: {
-    width: '90%',
-    marginVertical: 10,
-    marginHorizontal: 20,
+  field: {
+    marginBottom: 4,
   },
-  input: {
-    height: 125,
+  fieldLabel: {
+    marginBottom: 6,
+    letterSpacing: 0.3,
+  },
+  errorText: {
+    marginTop: 4,
+    marginLeft: 4,
+  },
+  multilineInput: {
+    height: 100,
     textAlignVertical: 'top',
-    borderWidth: 1,
-    padding: 10,
-    borderRadius: 20,
   },
-  sendButton: {
-    backgroundColor: appColors.primary,
-    padding: 10,
-    borderRadius: 5,
-    margin: 10,
-    width: '75%',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+  btn: {
+    marginTop: 8,
   },
 });

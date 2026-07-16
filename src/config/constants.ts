@@ -1,13 +1,16 @@
-import { API_URL, ENV_APP, MAPS_API_KEY } from '@env';
-
-console.log({ API_URL, MAPS_API_KEY, ENV_APP, message: 'Constants' });
+import { API_URL, APP_VERSION as APP_VERSION_ENV, MAPS_API_KEY } from '@env';
 
 export const URL_BASE = API_URL;
 
+export const APP_VERSION = APP_VERSION_ENV;
+
 export const NAME_BD = 'quicksqlitetest-typeorm.db';
+
+export const MAX_REQUESTS_DAYS_VACATIONS = 15;
 
 export const StorageKey = {
   auth: '@auth',
+  rememberMe: '@rememberMe',
 };
 
 export const formatString = 'dd/MM/yyyy h:mm:ss a';
