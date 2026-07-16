@@ -195,22 +195,22 @@ export const PermissionsScreen = ({ onComplete }: PermissionsScreenProps) => {
             <Text
               style={[
                 styles.disclosureTitle,
-                { color: colors.text.inverse, fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+                { color: colors.text.primary, fontSize: fontSize.sm, fontWeight: fontWeight.bold },
               ]}
             >
               Aviso de recopilación de datos
             </Text>
           </View>
-          <Text style={[styles.disclosureBody, { color: colors.text.inverseSecondary, fontSize: fontSize.xs }]}>
+          <Text style={[styles.disclosureBody, { color: colors.text.secondary, fontSize: fontSize.xs }]}>
             {'Al conceder los permisos, esta app recopilará y usará tus datos de la siguiente manera:\n\n'}
             {'• '}
-            <Text style={{ fontWeight: fontWeight.semibold, color: colors.text.inverse }}>{'Ubicación GPS (latitud y longitud): '}</Text>
+            <Text style={{ fontWeight: fontWeight.semibold, color: colors.text.primary }}>{'Ubicación GPS (latitud y longitud): '}</Text>
             {'se recopila para verificar tu asistencia en proyectos y centros de trabajo, incluso cuando la app está en segundo plano.\n\n'}
             {'• '}
-            <Text style={{ fontWeight: fontWeight.semibold, color: colors.text.inverse }}>{'Cámara: '}</Text>
+            <Text style={{ fontWeight: fontWeight.semibold, color: colors.text.primary }}>{'Cámara: '}</Text>
             {'se usa únicamente para escanear códigos QR de proyectos. No se almacenan imágenes.\n\n'}
             {'• '}
-            <Text style={{ fontWeight: fontWeight.semibold, color: colors.text.inverse }}>{'Compartición: '}</Text>
+            <Text style={{ fontWeight: fontWeight.semibold, color: colors.text.primary }}>{'Compartición: '}</Text>
             {'los datos de ubicación y asistencia se comparten con tu empresa empleadora afiliada a Grupo Misol. No se usan para publicidad.\n\n'}
             {'Para más información consulta nuestra Política de Privacidad en grupomisol.com'}
           </Text>
